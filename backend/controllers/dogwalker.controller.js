@@ -1,91 +1,91 @@
 import dogwalkerModel from '../models/dogwalker.model.js';
 import *as dogwalkerService from '../services/dogwalker.service.js';
-import redisClient from '../services/redis.service.js';
+
 import {validationResult} from 'express-validator';
 
-export const registerDogwalker = async (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
-    }
+// export const registerDogwalker = async (req, res, next) => {
+//     const errors = validationResult(req);
+//     if (!errors.isEmpty()) {
+//         return res.status(400).json({ errors: errors.array() });
+//     }
 
-    const { name, email, password, phone, description, hourlyRate } = req.body;
-    const image = req.file?.path; // Get the uploaded image URL from Cloudinary
+//     const { name, email, password, phone, description, hourlyRate } = req.body;
+//     const image = req.file?.path; // Get the uploaded image URL from Cloudinary
 
-    if (!image) {
-        return res.status(400).json({ message: 'Image upload failed. Please try again.' });
-    }
+//     if (!image) {
+//         return res.status(400).json({ message: 'Image upload failed. Please try again.' });
+//     }
 
-    const isDogwalkerAlreadyExist = await dogwalkerModel.findOne({ email });
+//     const isDogwalkerAlreadyExist = await dogwalkerModel.findOne({ email });
 
-    if (isDogwalkerAlreadyExist) {
-        return res.status(400).json({ message: 'Dogwalker already exists' });
-    }
+//     if (isDogwalkerAlreadyExist) {
+//         return res.status(400).json({ message: 'Dogwalker already exists' });
+//     }
 
-    const hashedPassword = await dogwalkerModel.hashPassword(password);
+//     const hashedPassword = await dogwalkerModel.hashPassword(password);
 
-    try {
-        const dogwalker = await dogwalkerService.createDogwalker({
-            name,
-            email,
-            password: hashedPassword,
-            phone,
-            description,
-            hourlyRate,
-            image,
-        });
-        req.dogwalker = dogwalker;
+//     try {
+//         const dogwalker = await dogwalkerService.createDogwalker({
+//             name,
+//             email,
+//             password: hashedPassword,
+//             phone,
+//             description,
+//             hourlyRate,
+//             image,
+//         });
+//         req.dogwalker = dogwalker;
 
-        const token = dogwalker.generateJWT();
+//         const token = dogwalker.generateJWT();
 
-        res.status(201).json({ token, dogwalker });
-    } catch (error) {
-        console.error('Error creating dogwalker:', error);
-        res.status(500).json({ message: 'Internal Server Error' });
-    }
-};
+//         res.status(201).json({ token, dogwalker });
+//     } catch (error) {
+//         console.error('Error creating dogwalker:', error);
+//         res.status(500).json({ message: 'Internal Server Error' });
+//     }
+// // };
 
-export const loginDogwalker = async (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
-    }
+// export const loginDogwalker = async (req, res, next) => {
+//     const errors = validationResult(req);
+//     if (!errors.isEmpty()) {
+//         return res.status(400).json({ errors: errors.array() });
+//     }
 
-    const { email, password } = req.body;
+//     const { email, password } = req.body;
 
-    const dogwalker = await dogwalkerModel.findOne({ email }).select('+password');
+//     const dogwalker = await dogwalkerModel.findOne({ email }).select('+password');
 
-    if (!dogwalker) {
-        return res.status(401).json({ message: 'Invalid email or password' });
-    }
+//     if (!dogwalker) {
+//         return res.status(401).json({ message: 'Invalid email or password' });
+//     }
 
-    const isMatch = await dogwalker.isValidPassword(password);
+//     const isMatch = await dogwalker.isValidPassword(password);
 
-    if (!isMatch) {
-        return res.status(401).json({ message: 'Invalid email or password' });
-    }
+//     if (!isMatch) {
+//         return res.status(401).json({ message: 'Invalid email or password' });
+//     }
 
-    const token = dogwalker.generateJWT();
+//     const token = dogwalker.generateJWT();
 
-    res.cookie('token', token);
-    req.dogwalker = dogwalker;
+//     res.cookie('token', token);
+//     req.dogwalker = dogwalker;
 
-    res.status(200).json({ token, dogwalker });
-}
+//     res.status(200).json({ token, dogwalker });
+// }
 
-export const getDogwalkerProfile = async (req, res, next) => {
-    res.status(200).json({ dogwalker: req.dogwalker });
-}
+// export const getDogwalkerProfile = async (req, res, next) => {
+//     res.status(200).json({ dogwalker: req.dogwalker });
+// }
 
-export const logoutDogwalker = async (req, res, next) => {
-    const token = req.cookies.token || req.headers.authorization?.split(' ')[ 1 ];
+// export const logoutDogwalker = async (req, res, next) => {
+//     const token = req.cookies.token || req.headers.authorization?.split(' ')[ 1 ];
 
-    redisClient.set(token, 'logout', 'EX', 60 * 60 * 24);
+//     redisClient.set(token, 'logout', 'EX', 60 * 60 * 24);
 
-    res.clearCookie('token');
+//     res.clearCookie('token');
 
-    res.status(200).json({ message: 'Logout successfully' });
-}
+//     res.status(200).json({ message: 'Logout successfully' });
+// }
 
 export const filterDogwalkers = async (req, res, next) => {
     const errors = validationResult(req);
@@ -95,7 +95,7 @@ export const filterDogwalkers = async (req, res, next) => {
 
     const { NearbyWalkers, dates, hourlyRatelow, hourlyRatehigh } = req.body;
     const query = {
-        _id: { $in: NearbyWalkers.map(walker => walker._id) },
+        clerkId: { $in: NearbyWalkers.map(walker => walker.clerkId) },
     };
 
     if (hourlyRatelow || hourlyRatehigh) {
@@ -114,6 +114,7 @@ export const filterDogwalkers = async (req, res, next) => {
 
     try {
         const dogwalkers = await dogwalkerModel.find(query);
+        console.log("dogwalkers", dogwalkers);
         res.status(200).json(dogwalkers);
     } catch (error) {
         console.error(error);
@@ -121,18 +122,19 @@ export const filterDogwalkers = async (req, res, next) => {
     }
 };
 
-export const setAvailability = async (req, res, next) => {
+
+
+export const setAvailability = async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
     }
 
-    const { dates,dogwalkerId } = req.body;
-    
+    const { dates, clerkId } = req.body;
 
     try {
-        const dogwalker = await dogwalkerModel.findByIdAndUpdate(
-            dogwalkerId,
+        const dogwalker = await dogwalkerModel.findOneAndUpdate(
+            { clerkId },
             { availability: dates },
             { new: true }
         );
@@ -147,4 +149,5 @@ export const setAvailability = async (req, res, next) => {
         res.status(500).json({ message: 'Internal Server Error' });
     }
 };
+
 

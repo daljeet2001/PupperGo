@@ -1,6 +1,6 @@
 import { Server as SocketIo } from 'socket.io';
 import dogwalkerModel from './models/dogwalker.model.js';
-import userModel from './models/user.model.js';
+import User from './models/user.model.js';
 
 let io;
 
@@ -15,29 +15,50 @@ function initializeSocket(server) {
     io.on('connection', (socket) => {
         console.log(`Client connected: ${socket.id}`);
 
-        socket.on('join', async (data) => {
-            const { userId, userType } = data;
+    socket.on('join', async (data) => {
+    const { clerkId, userType } = data;
 
-            if (userType === 'user') {
-                await userModel.findByIdAndUpdate(userId, { socketId: socket.id });
-            } else if (userType === 'dogwalker') {
-                await dogwalkerModel.findByIdAndUpdate(userId, { socketId: socket.id });
-            }
-        });
+    try {
+        if (userType === 'user') {
+        await User.findOneAndUpdate(
+            { clerkId },
+            { socketId: socket.id },
+            { new: true }
+        );
+        } else if (userType === 'dogwalker') {
+        await dogwalkerModel.findOneAndUpdate(
+            { clerkId },
+            { socketId: socket.id },
+            { new: true }
+        );
+        }
+    } catch (error) {
+        console.error('Error setting socket ID:', error);
+        socket.emit('error', { message: 'Failed to join socket room' });
+    }
+    });
+
 
         socket.on('update-location-dogwalker', async (data) => {
-            const { userId, location } = data;
+            const { clerkId, location } = data;
 
             if (!location || !location.ltd || !location.lng) {
                 return socket.emit('error', { message: 'Invalid location data' });
             }
 
-            await dogwalkerModel.findByIdAndUpdate(userId, {
+       await dogwalkerModel.findOneAndUpdate(
+            { clerkId }, // filter by clerkId
+            {
+                $set: {
                 location: {
                     ltd: location.ltd,
-                    lng: location.lng
+                    lng: location.lng,
                 }
-            });
+                }
+            },
+            { new: true }
+            );
+
         });
 
         socket.on('new-notification-user', async (data) => {
@@ -51,7 +72,7 @@ function initializeSocket(server) {
             try {
                 // Update the user with the new notification
                 const updatedDogwalker = await dogwalkerModel.findOneAndUpdate(
-                    { name: user }, // Match user by name
+                    { username: user }, // Match user by name
                     { $push: { notifications: { message, date } } }, // Push the notification to the user's notifications array
                     { new: true } // Return the updated document
                 );
@@ -68,11 +89,16 @@ function initializeSocket(server) {
             }
         });
 
+        // socket.onAny((event, ...args) => {
+        // console.log(`Received event: ${event}`, args);
+        // });
+
+
     
 
         socket.on('new-notification-dogwalker', async (data) => {
             const { user, message, date } = data;
-            console.log('Notification data:', data);
+            // console.log('Notification data:', data);
 
             if (!message || !user) {
                 return socket.emit('error', { message: 'Invalid notification data' });
@@ -80,7 +106,7 @@ function initializeSocket(server) {
 
             try {
                 // Update the user with the new notification
-                const updatedUser = await userModel.findOneAndUpdate(
+                const updatedUser = await User.findOneAndUpdate(
                     { username: user }, // Match user by name
                     { $push: { notifications: { message, date } } }, // Push the notification to the user's notifications array
                     { new: true } // Return the updated document
@@ -90,9 +116,9 @@ function initializeSocket(server) {
                     console.error('User not found');
                     return socket.emit('error', { message: 'User not found' });
                 }
-                console.log('Updated user:', updatedUser);
+                // console.log('Updated user:', updatedUser);
 
-                console.log('Notification added successfully to user:', updatedUser.notifications);
+                // console.log('Notification added successfully to user:', updatedUser.notifications);
             } catch (error) {
                 console.error('Error updating user notifications:', error);
             }

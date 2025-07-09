@@ -12,7 +12,7 @@ export default function Footer() {
           <h4 className="font-bold mb-3">Learn More</h4>
           <ul className="space-y-2 text-sm">
             <li><a href="#">Read Our Blog</a></li>
-            <li><a href="#">PupperGo Q&A Community</a></li>
+            <li><a href="#">PupperPro Q&A Community</a></li>
             <li><a href="#">PawProtect</a></li>
             <li><a href="#">Safety</a></li>
           </ul>
@@ -20,7 +20,7 @@ export default function Footer() {
 
         {/* About */}
         <div>
-          <h4 className="font-bold mb-3">About PupperGo</h4>
+          <h4 className="font-bold mb-3">About PupperPro</h4>
           <ul className="space-y-2 text-sm">
             <li><a href="#">About Us</a></li>
             <li><a href="#">Contact Us</a></li>
@@ -67,7 +67,7 @@ export default function Footer() {
 
         <p className="text-xs text-gray-500">
           By providing my email address, I consent to receive marketing
-          communications from PupperGo and confirm that I am 18 years of age
+          communications from PupperPro and confirm that I am 18 years of age
           or older. I can unsubscribe at any time.
         </p>
 </div>
@@ -76,7 +76,7 @@ export default function Footer() {
 
       {/* Bottom Row */}
       <div className="border-t border-gray-200 py-6 px-6 flex flex-col md:flex-row justify-between items-center text-sm text-gray-500">
-        <p>© 2025 PupperGo, Inc. All Rights Reserved.</p>
+        <p>© 2025 PupperPro, Inc. All Rights Reserved.</p>
         <div className="flex space-x-4 mt-4 md:mt-0">
           <a href="#"><Facebook className="w-4 h-4" /></a>
           <a href="#"><Instagram className="w-4 h-4" /></a>

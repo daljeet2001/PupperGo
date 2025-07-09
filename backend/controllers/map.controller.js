@@ -98,10 +98,10 @@ export const sendRequest = async (req, res) => {
     try {
         const user = JSON.parse(req.query.user);
         const filters = JSON.parse(req.query.filters);
-        const dogwalkerId = req.query.dogwalkerId;
+        const clerkId = req.query.dogwalkerId;
 
         const time = filters.timeNeeded.split('to')[0].trim();
-        console.log('Received request:', { user, filters, dogwalkerId });
+        // console.log('Received request:', { user, filters, clerkId });
 
         const booking = {
             _id:uuidv4(),
@@ -114,7 +114,7 @@ export const sendRequest = async (req, res) => {
         // console.log(booking);
 
         // Find the dogwalker by ID
-        const dogwalker = await dogwalkerModel.findById(dogwalkerId);
+        const dogwalker = await dogwalkerModel.findOne({clerkId});
 
         if (!dogwalker) {
             console.error('Dogwalker not found');

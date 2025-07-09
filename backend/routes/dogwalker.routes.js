@@ -7,29 +7,29 @@ import upload from '../utils/cloudinaryStorage.js'; // Import multer upload midd
 
 const router = Router();
 
-router.post('/register', 
-    upload.single('image'), // Handle image upload
-    [
-        body('name').isLength({ min: 3 }).withMessage('Name must be at least 3 characters long'),
-        body('email').isEmail().withMessage('Invalid Email'),
-        body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters long'),
-        body('phone').isLength({ min: 10 }).withMessage('Phone number must be at least 10 digits long'),
-        body('description').isLength({ max: 200 }).withMessage('Description must not be longer than 200 characters'),
-        body('hourlyRate').isNumeric().withMessage('Hourly rate must be a number'),
-    ],
-    dogwalkerController.registerDogwalker
-);
+// router.post('/register', 
+//     upload.single('image'), // Handle image upload
+//     [
+//         body('name').isLength({ min: 3 }).withMessage('Name must be at least 3 characters long'),
+//         body('email').isEmail().withMessage('Invalid Email'),
+//         body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters long'),
+//         body('phone').isLength({ min: 10 }).withMessage('Phone number must be at least 10 digits long'),
+//         body('description').isLength({ max: 200 }).withMessage('Description must not be longer than 200 characters'),
+//         body('hourlyRate').isNumeric().withMessage('Hourly rate must be a number'),
+//     ],
+//     dogwalkerController.registerDogwalker
+// );
 
-router.post('/login', [
-    body('email').isEmail().withMessage('Invalid Email'),
-    body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters long')
-],
-    dogwalkerController.loginDogwalker
-);
+// router.post('/login', [
+//     body('email').isEmail().withMessage('Invalid Email'),
+//     body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters long')
+// ],
+//     dogwalkerController.loginDogwalker
+// );
 
-router.get('/profile', authMiddleware.authDogwalker, dogwalkerController.getDogwalkerProfile);
+// router.get('/profile', dogwalkerController.getDogwalkerProfile);
 
-router.get('/logout', authMiddleware.authDogwalker, dogwalkerController.logoutDogwalker);
+// router.get('/logout', authMiddleware.authDogwalker, dogwalkerController.logoutDogwalker);
 
 router.post('/filter', [
     body('NearbyWalkers').isArray().withMessage('NearbyWalkers must be an array'),
@@ -38,14 +38,20 @@ router.post('/filter', [
     body('hourlyRatehigh').optional().isNumeric().withMessage('Hourly rate must be a number'),
 ], dogwalkerController.filterDogwalkers);
 
-router.post('/availability', authMiddleware.authDogwalker, [
+router.post('/availability', [
     body('dates').isArray().withMessage('Dates must be an array of strings'),
-    body('dogwalkerId').isString().withMessage('Dogwalker ID must be a string'),
+    body('clerkId').isString().withMessage('clerkId ID must be a string'),
 ], dogwalkerController.setAvailability);
 
-router.get('/upcoming-bookings', authMiddleware.authDogwalker, async (req, res) => {
+router.get('/upcoming-bookings',  async (req, res) => {
     try {
-        const dogwalker = req.dogwalker; // Auth middleware attaches the dogwalker to the request
+        const { clerkId } = req.query;
+        // console.log('Fetching upcoming bookings for clerkId:', clerkId);
+
+        if (!clerkId) {
+            return res.status(400).json({ message: 'clerkId is required' });
+        }
+        const dogwalker = await dogwalkerModel.findOne({ clerkId }); 
         if (!dogwalker) {
             return res.status(404).json({ message: 'Dogwalker not found' });
         }
@@ -59,11 +65,11 @@ router.get('/upcoming-bookings', authMiddleware.authDogwalker, async (req, res) 
     }
 });
 
-router.post('/update-booking-status', authMiddleware.authDogwalker, async (req, res) => {
+router.post('/update-booking-status', async (req, res) => {
     try {
-        const { bookingId, status } = req.body;
+        const { bookingId, status ,clerkId} = req.body;
 
-        const dogwalker = req.dogwalker; // Auth middleware attaches the dogwalker to the request
+        const dogwalker = await dogwalkerModel.findOne({ clerkId });
         if (!dogwalker) {
             return res.status(404).json({ message: 'Dogwalker not found' });
         }
@@ -81,24 +87,24 @@ router.post('/update-booking-status', authMiddleware.authDogwalker, async (req, 
 
         res.status(200).json({ message: 'Booking status updated successfully', booking });
     } catch (error) {
-        console.error('Error updating booking status:', error);
+        // console.error('Error updating booking status:', error);
         res.status(500).json({ message: 'Internal Server Error' });
     }
 });
 
 router.get('/notifications', async (req, res) => {
     try {
-        const { dogwalkerId } = req.query;
+        const { clerkId } = req.query;
 
-        if (!dogwalkerId) {
-            return res.status(400).json({ message: 'dogwalkerId ID is required' });
+        if (!clerkId) {
+            return res.status(400).json({ message: 'clerkId is required' });
         }
 
-        const dogwalker = await dogwalkerModel.findOne({ _id: dogwalkerId });
+        const dogwalker = await dogwalkerModel.findOne({ clerkId });
         if (!dogwalker) {
             return res.status(404).json({ message: 'dogwalker not found' });
         }
-        console.log(dogwalker.notifications);
+        // console.log(dogwalker.notifications);
 
         res.status(200).json(dogwalker.notifications);
     } catch (error) {
@@ -115,6 +121,39 @@ router.get('/all', async (req, res) => {
         console.error('Error fetching all dogwalkers:', error);
         res.status(500).json({ message: 'Internal Server Error' });
     }
+});
+
+router.post("/sync", async (req, res) => {
+  const { clerkId, username, email, profileImage } = req.body;
+
+  if (!clerkId || !username || !email || !profileImage) {
+    return res.status(400).json({ error: "All fields are required" });
+  }
+
+  try {
+    const existingDogwalker = await dogwalkerModel.findOne({ clerkId });
+    // console.log("Existing dogwalker:", existingDogwalker);
+
+    if (!existingDogwalker) {
+      await dogwalkerModel.create({
+        clerkId,
+        username,
+        email,
+        profileImage,
+
+});
+
+    }
+
+    return res.status(200).json({ message: "User synced" });
+  } catch (error) {
+  console.error("Error syncing user:", error);
+  return res.status(500).json({
+    error: error.message || "Unknown server error",
+    message: "Failed to sync user"
+  });
+}
+
 });
 
 export default router;

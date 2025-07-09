@@ -1,9 +1,12 @@
 import mongoose from 'mongoose';
-import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
 
 const DogWalkerSchema = new mongoose.Schema({
-    name: {
+    clerkId: {
+        type: String,
+        required: true,
+        unique: true,
+    },
+    username: {
         type: String,
         required: true,
     },
@@ -13,14 +16,9 @@ const DogWalkerSchema = new mongoose.Schema({
         unique: true,
         match: [/.+@.+\..+/, 'Please enter a valid email address'],
     },
-    password: {
-        type: String,
-        required: true,
-        select: false, // Don't return password in queries
-    },
     phone: {
         type: String,
-        required: true,
+        // required: true,
     },
  
     availability: {
@@ -31,13 +29,13 @@ const DogWalkerSchema = new mongoose.Schema({
         type: String,
     },
 
-    image: {
+    profileImage: {
         type: String, // URL or path to the image
         required: true,
     },
     description: {
         type: String,
-        required: true,
+        // required: true,
         maxLength: [200, 'Description must not be longer than 200 characters'],
     },
     location: {
@@ -51,7 +49,7 @@ const DogWalkerSchema = new mongoose.Schema({
     },
     hourlyRate: {
         type: Number, // rate in currency per hour
-        required: true,
+        // required: true,
     },
     upcomingBookings: [
         {
@@ -78,22 +76,6 @@ DogWalkerSchema.index({ "notifications.expireAt": 1 }, { expireAfterSeconds: 0 }
 
 // Ensure TTL index is created for upcomingBookings
 DogWalkerSchema.index({ "upcomingBookings.expireAt": 1 }, { expireAfterSeconds: 0 });
-
-DogWalkerSchema.statics.hashPassword = async function (password) {
-    return await bcrypt.hash(password, 10);
-}
-
-DogWalkerSchema.methods.isValidPassword = async function (password) {
-    return await bcrypt.compare(password, this.password);
-}
-
-DogWalkerSchema.methods.generateJWT = function () {
-    return jwt.sign(
-        { email: this.email },
-        process.env.JWT_SECRET,
-        { expiresIn: '24h' }
-    );
-}
 
 
 const Dogwalker = mongoose.model('dogwalker', DogWalkerSchema);

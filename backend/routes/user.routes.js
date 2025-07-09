@@ -39,22 +39,17 @@ router.get('/profile', userController.profileController);
 
 router.get('/notifications', async (req, res) => {
     try {
-        const { userId } = req.query;
+        const { clerkId } = req.query;
 
-        if (!userId) {
-            return res.status(400).json({ message: 'User ID is required' });
+        if (!clerkId) {
+            return res.status(400).json({ message: 'clerkId is required' });
         }
        
-        const user= await userModel.findOne({ _id: userId });
+        const user= await User.findOne({ clerkId });
         if (!user) {
             return res.status(404).json({ message: 'user not found' });
         }
         // console.log(user.notifications);
-
-        
-        
-
-
         res.status(200).json(user.notifications);
     } catch (error) {
         console.error('Error fetching notifications:', error);
@@ -72,7 +67,7 @@ router.post("/sync", async (req, res) => {
 
   try {
     const existingUser = await User.findOne({ clerkId });
-    console.log("Existing user:", existingUser);
+    // console.log("Existing user:", existingUser);
 
     if (!existingUser) {
       await User.create({

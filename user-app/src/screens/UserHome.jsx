@@ -54,14 +54,14 @@ const UserHome = () => {
   useEffect(() => { 
     if (!isLoaded || !isSignedIn || !user?.id) return;
     socket.emit('join', {
-      userId: user._id,
+      clerkId: user.id,
       userType: 'user',
     });
     const updateLocation = () => {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition((position) => {
           socket.emit('update-location-user', {
-            userId: user._id,
+            clerkId: user.id,
             location: {
               ltd: position.coords.latitude,
               lng: position.coords.longitude,
@@ -77,7 +77,7 @@ const UserHome = () => {
     const fetchNotifications = async () => {
       try {
         const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/user/notifications`, {
-          params: { userId: user._id },
+          params: { clerkId: user.id },
         });
         setNotifications(response.data);
         console.log('Notifications fetched:', response.data);
@@ -98,7 +98,7 @@ const UserHome = () => {
 
 
 
-  }, [user, isLoaded, isSignedIn]);
+  }, [user, isLoaded, isSignedIn, socket]);
 
 useEffect(() => {
   if (!user || !isLoaded) return;
@@ -218,10 +218,8 @@ useEffect(() => {
     try {
       const response1 = await axios.get(`${import.meta.env.VITE_BASE_URL}/map/get-coordinates`, {
         params: { address: filters.location },
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-        },
       });
+      console.log('response1:', response1.data);
 
       const response2 = await axios.get(`${import.meta.env.VITE_BASE_URL}/map/get-dogwalkers-in-radius`, {
         params: {
@@ -229,10 +227,8 @@ useEffect(() => {
           lng: response1.data.lng,
           radius: 20, // Example radius in km
         },
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-        },
       });
+      console.log('response2:', response2.data);
 
       const dateRange = getDateRangeStrings(filters.startDate, filters.endDate);
 
@@ -452,11 +448,11 @@ useEffect(() => {
                 <div className="flex justify-between items-center">
                   <div className="flex items-center space-x-4">
                     <img
-                      src={walker.image || 'https://via.placeholder.com/150'}
+                      src={walker.profileImage || 'https://via.placeholder.com/150'}
                       alt="Profile"
                       className="w-12 h-12 rounded-full object-cover"
                     />
-                    <h3 className="text-lg font-semibold">{walker.name}</h3>
+                    <h3 className="text-lg font-semibold">{walker.username}</h3>
                   </div>
                   <div>
                     <span>from</span>
@@ -501,6 +497,11 @@ useEffect(() => {
                     disabled={requestingIds.includes(walker._id)} // Disable button for specific walker
                   onClick={async () => {
                     setRequestingIds((prev) => [...prev, walker._id]);
+                    socket.emit('new-notification-user', {
+                        user: walker.username,
+                        message: `${user.fullName} has sent you a ${filters.service} request`,
+                        date: new Date().toLocaleString(),
+                      })
                     try {
                       const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/map/send-request`, {
                         params: {
@@ -517,11 +518,9 @@ useEffect(() => {
                             timeNeeded: filters.timeNeeded,
                             rateRange: value,
                           }),
-                          dogwalkerId: walker._id,
+                          dogwalkerId: walker.clerkId,
                         },
-                        headers: {
-                          Authorization: `Bearer ${localStorage.getItem('token')}`,
-                        },
+                   
                       });
                       console.log('Request sent successfully:', response.data);
                     } catch (error) {
