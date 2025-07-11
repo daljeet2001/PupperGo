@@ -156,4 +156,60 @@ router.post("/sync", async (req, res) => {
 
 });
 
+router.post('/update-profile', async (req, res) => {
+  const { clerkId, username, email, phone, description, hourlyRate } = req.body;
+
+  if (!clerkId) return res.status(400).json({ error: 'Missing clerkId' });
+
+  try {
+    const updateDogwalker = await dogwalkerModel.findOneAndUpdate(
+      { clerkId }, 
+      {
+        username,
+        email,
+        phone,
+        description,
+        hourlyRate,
+      },
+      { new: true }
+    );
+
+    if (!updateDogwalker) {
+      return res.status(404).json({ error: 'Dogwalker not found' });
+    }
+
+    res.status(200).json({ message: 'Profile updated', dogwalker: updateDogwalker });
+  } catch (err) {
+    console.error('Update error:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+router.patch('/booking-status',async (req, res) => {
+  const { clerkId, bookingId, status } = req.body;
+
+
+  try {
+    const Dogwalker = await dogwalkerModel.findOne(
+      { clerkId,},
+    );
+    if (!Dogwalker) {
+      return res.status(404).json({ message: 'Dogwalker not found' });
+    }
+    const booking = Dogwalker.upcomingBookings.find(b => b._id.toString() === bookingId); 
+    if (!booking) {
+      return res.status(404).json({ message: 'Booking not found' });
+    }
+    booking.status = status; 
+    await Dogwalker.save();
+
+
+    res.status(200).json(Dogwalker);
+  } catch (err) {
+    console.error('Status update error:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+
 export default router;

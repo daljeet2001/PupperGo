@@ -96,7 +96,28 @@ router.post("/sync", async (req, res) => {
 
 });
 
+router.get('/location/:clientId', async (req, res) => {
+  try {
+    const { clientId } = req.params;
 
+    const user = await User.findOne({ clerkId: clientId });
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const location = user.location;
+
+    if (!location ) {
+      return res.status(400).json({ error: 'Location not set for this user' });
+    }
+
+    return res.status(200).json({ location });
+  } catch (error) {
+    console.error('Error fetching user location:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
 
 
 

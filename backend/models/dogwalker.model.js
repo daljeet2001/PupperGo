@@ -58,6 +58,7 @@ const DogWalkerSchema = new mongoose.Schema({
             time: String,
             service: String,
             client: String,
+            clientId: String,
             status: String,
             expireAt: { type: Date, default: () => Date.now() + 3 * 24 * 60 * 60 * 1000 }, // 3 days from creation
         }

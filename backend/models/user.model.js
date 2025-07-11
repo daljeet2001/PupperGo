@@ -27,9 +27,14 @@ const userSchema = new mongoose.Schema({
     type: String,
   },
   location: {
-    ltd: Number,
-    lng: Number,
-  },
+        ltd: {
+            type: Number,
+        },
+        lng: {
+            type: Number,
+        }
+      
+    },
   notifications: [
     {
       message: String,

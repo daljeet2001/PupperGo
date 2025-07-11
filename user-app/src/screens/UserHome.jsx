@@ -430,7 +430,7 @@ useEffect(() => {
         </div>
 
         {/* Center Section: List of Pet Walkers */}
-        <div className="w-2/4 flex flex-col justify-start bg-white p-4 rounded-lg shadow-md space-y-4 overflow-y-auto">
+        <div className="w-3/8 flex flex-col justify-start bg-white p-4 rounded-lg shadow-md space-y-4 overflow-y-auto">
           <h2 className="text-2xl font-medium">
             <i className="ri-map-pin-line mr-1"></i>Sitters in your area
           </h2>
@@ -540,7 +540,7 @@ useEffect(() => {
      
 
         {/* Right Section: LiveTracking */}
-        <div className="w-1/4 flex items-center justify-center bg-white h-screen sticky top-0 rounded-lg shadow-md  space-y-4 ">
+        <div className="w-3/8 flex items-center justify-center bg-white h-screen sticky top-0 rounded-lg shadow-md  space-y-4 ">
           <LiveTracking filterdogwalkers={filterdogwalkers} />
         </div>
       </div>

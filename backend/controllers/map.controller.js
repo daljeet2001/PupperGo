@@ -110,8 +110,9 @@ export const sendRequest = async (req, res) => {
             service: filters.service,
             client: user.name,
             status: 'pending',
+            clientId: user.id,
         };
-        // console.log(booking);
+        console.log(booking);
 
         // Find the dogwalker by ID
         const dogwalker = await dogwalkerModel.findOne({clerkId});

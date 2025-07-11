@@ -10,6 +10,10 @@ import { SocketContext } from '../context/SocketContext';
 import { Link } from 'react-router-dom';
 import Appbar from '../components/AppBar';
 import Footer from '../components/Footer';
+import {ProfileCard} from '../components/ProfileCard';
+import UpcomingWalks from '../components/UpcomingWalks'
+import RouteToUser from '../components/RouteToUser';
+
 
 const DogwalkerHome = () => {
   const [selectedDates, setSelectedDates] = useState([]);
@@ -19,7 +23,10 @@ const DogwalkerHome = () => {
   const [notifications, setNotifications] = useState([]); 
   const [buttonClicked, setButtonClicked] = useState(false);
   const { user, isSignedIn, isLoaded } = useUser();
-  console.log('User:', user);
+  const [userRoute, setUserRoute] = useState(false);
+  const [clientId, setClientId] = React.useState(null);
+  const [userLocation, setUserLocation] = useState(null);
+  // console.log('User:', user);
 
 useEffect(() => {
     if(!isLoaded) return; 
@@ -150,6 +157,31 @@ useEffect(() => {
       console.error('Error updating booking status:', error);
     }
   };
+
+const fetchClientLocation = async (id) => {
+  try {
+    const res = await axios.get(  `${import.meta.env.VITE_BASE_URL}/user/location/${id}`);
+    return res.data.location; // { lat, lng }
+  } catch (error) {
+    console.error('Error fetching client location:', error.response?.data?.error || error.message);
+  }
+};
+
+useEffect(() => {
+  console.log('Fetching client location for ID:', clientId);
+  const getLocation = async () => {
+    const location = await fetchClientLocation(clientId); // assuming client = clientId
+    if (location) {
+      setUserLocation(location);
+    }
+  };
+
+  getLocation();
+}, [clientId, isLoaded, isSignedIn]);
+
+
+
+
   if (!isLoaded) return <div>Loading...</div>;
   if (!isSignedIn) return <div>Please sign in</div>;
 
@@ -166,24 +198,8 @@ useEffect(() => {
         {/* Left Section */}
         <div className="w-1/4 flex flex-col space-y-4 mx-4">
           {/* /* Profile Section */}
-          <div className="bg-white p-4 rounded-lg shadow-md">
-            <div className="flex items-center space-x-4 ml-2">
-              <img
-                className="w-16 h-16 rounded-full object-cover"
-                src={user.imageUrl}
-                alt="Profile"
-              />
-              <div className="flex flex-col ml-2">
-                <p className="text-base font-semibold">{user.fullName}</p>
-                <Link to="/inbox" className="text-sm mt-1 opacity-50 hover:underline">
-                  Edit Profile
-                </Link>
-                <Link to="/inbox" className="text-sm opacity-50 hover:underline">
-                  View Profile
-                </Link>
-              </div>
-            </div>
-          </div>
+          <ProfileCard user={user}/>
+ 
 
           {/* /* Pawpals Balance Section */}
           <div className="bg-white p-4 rounded-lg shadow-md">
@@ -357,94 +373,185 @@ useEffect(() => {
                 </button>
                 </div>
                 </div>
+     
 
-                {/* Upcoming Bookings Section */}
-          <div className="bg-white p-4 rounded-lg shadow-md">
-            <h2 className="text-2xl font-bold mb-2">Upcoming Bookings</h2>
-            <p className="font-normal opacity-50 mb-4">Here are your upcoming bookings for the next week:</p>
-            <div className="flex flex-col space-y-4">
-              {upcomingBookings.map((booking, index) => (
-                <div
-                  key={index}
-                  className={`flex flex-col p-3 border rounded-md ${
-                    booking.status === 'accepted'
-                      ? 'bg-green-100 border-green-400'
-                      : booking.status === 'declined'
-                      ? 'bg-red-100 border-red-400'
-                      : 'border-gray-300 hover:bg-gray-100'
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-semibold">{booking.service}</p>
-                      <p className="text-xs text-gray-500">{booking.client}</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-sm font-medium">{booking.date}</p>
-                      <p className="text-xs text-gray-500">{booking.time}</p>
-                    </div>
+          {/* 📪 Requestes Section */}
+         <div className="bg-white p-4 rounded-lg shadow-md">
+          <h2 className="text-2xl font-bold mb-2">Received Requests 📬</h2>
+          <p className="font-normal opacity-50 mb-4">Here are your requests for the next week:</p>
+
+          <div className="flex flex-col space-y-4 max-h-96 overflow-y-auto">
+            {upcomingBookings.map((booking, index) => (
+              <div
+                key={index}
+                className={`flex flex-col p-3 border rounded-md ${
+                  booking.status === 'accepted'
+                    ? 'bg-green-100 border-green-400'
+                    : booking.status === 'declined'
+                    ? 'bg-red-100 border-red-400'
+                    : booking.status === 'started'
+                    ? 'bg-blue-100 border-blue-400'
+                    : booking.status === 'cancelled'
+                    ? 'bg-gray-100 border-gray-400'
+                    : 'border-gray-300 hover:bg-gray-100'
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-semibold">{booking.service}</p>
+                    <p className="text-xs text-gray-500">{booking.client}</p>
                   </div>
-                  <div className="flex justify-end mt-2 space-x-2">
-                    {booking.status === 'pending' && (
-                      <>
-                        <button
-                          className="px-4 py-2 text-sm font-medium text-white bg-green-500 rounded-md hover:bg-green-600"
-                          onClick={() => {
-                            const updatedBookings = upcomingBookings.map((b) =>
-                              b === booking ? { ...b, status: 'accepted' } : b
-                            );
-                            setUpcomingBookings(updatedBookings);
-                            updateBookingStatus(booking._id, 'accepted'); // Save status change
+                  <div className="text-right">
+                    <p className="text-sm font-medium">{booking.date}</p>
+                    <p className="text-xs text-gray-500">{booking.time}</p>
+                  </div>
+                </div>
 
-                            socket.emit('new-notification-dogwalker',{
-                
+                <div className="flex justify-end mt-2 space-x-2">
+                  {booking.status === 'pending' && (
+                    <>
+                      <button
+                        className="px-4 py-2 text-sm font-medium text-white bg-green-500 rounded-md hover:bg-green-600"
+                        onClick={() => {
+                          const updatedBookings = upcomingBookings.map((b) =>
+                            b === booking ? { ...b, status: 'accepted' } : b
+                          );
+                          setUpcomingBookings(updatedBookings);
+                          updateBookingStatus(booking._id, 'accepted');
+
+                          socket.emit('new-notification-dogwalker', {
                             message: `Your booking request for ${booking.service} on ${booking.date} has been accepted by ${user.fullName}.`,
                             date: new Date().toLocaleDateString(),
                             user: booking.client,
-                            })
-                            console.log("notification sent to user");
-                          }}
-                        >
-                          Accept
-                        </button>
-                        <button
-                          className="px-4 py-2 text-sm font-medium text-white bg-red-500 rounded-md hover:bg-red-600"
-                          onClick={() => {
-                            const updatedBookings = upcomingBookings.map((b) =>
-                              b === booking ? { ...b, status: 'declined' } : b
-                            );
-                            setUpcomingBookings(updatedBookings);
-                            updateBookingStatus(booking._id, 'declined'); // Save status change
+                          });
+                        }}
+                      >
+                        Accept
+                      </button>
+                      <button
+                        className="px-4 py-2 text-sm font-medium text-white bg-red-500 rounded-md hover:bg-red-600"
+                        onClick={() => {
+                          const updatedBookings = upcomingBookings.map((b) =>
+                            b === booking ? { ...b, status: 'declined' } : b
+                          );
+                          setUpcomingBookings(updatedBookings);
+                          updateBookingStatus(booking._id, 'declined');
 
-                            socket.emit('new-notification-dogwalker',{                            
-                                message: `Your booking request for ${booking.service} on ${booking.date} has been declined by ${user.fullName}.`,
-                                date: new Date().toLocaleDateString(),
-                                user: booking.client,                 
-                            })
-                          }}
-                        >
-                          Decline
-                        </button>
-                      </>
-                    )}
-                    {booking.status === 'accepted' && (
-                      <button className="px-4 py-2 text-sm font-medium text-white bg-green-500 rounded-md cursor-default">
-                        Accepted
+                          socket.emit('new-notification-dogwalker', {
+                            message: `Your booking request for ${booking.service} on ${booking.date} has been declined by ${user.fullName}.`,
+                            date: new Date().toLocaleDateString(),
+                            user: booking.client,
+                          });
+                        }}
+                      >
+                        Decline
                       </button>
-                    )}
-                    {booking.status === 'declined' && (
-                      <button className="px-4 py-2 text-sm font-medium text-white bg-red-500 rounded-md cursor-default">
-                        Declined
-                      </button>
-                    )}
-                  </div>
+                    </>
+                  )}
+
+                  {booking.status === 'accepted' && (
+                    <button className="px-4 py-2 text-sm font-medium text-white bg-green-500 rounded-md cursor-default">
+                      Accepted
+                    </button>
+                  )}
+
+                  {booking.status === 'declined' && (
+                    <button className="px-4 py-2 text-sm font-medium text-white bg-red-500 rounded-md cursor-default">
+                      Declined
+                    </button>
+                  )}
+
+                  {booking.status === 'started' && (
+                    <button className="px-4 py-2 text-sm font-medium text-white bg-blue-500 rounded-md cursor-default">
+                      Started
+                    </button>
+                  )}
+
+                  {booking.status === 'cancelled' && (
+                    <button className="px-4 py-2 text-sm font-medium text-white bg-gray-500 rounded-md cursor-default">
+                      Cancelled
+                    </button>
+                  )}
                 </div>
-              ))}
-            </div>
-          </div>
+              </div>
+    ))}
+  </div>
+</div>
+
+
+          {/* Upcoming Walks Section */}
+          <UpcomingWalks
+          bookings={upcomingBookings}
+          onStart={async (booking) => {
+            try {
+              await axios.patch(`${import.meta.env.VITE_BASE_URL}/dogwalker/booking-status`, {
+                clerkId: user.id,
+                bookingId: booking._id,
+                status: 'started',
+              });
+
+               setUpcomingBookings((prev) =>
+                prev.map((b) =>
+                  b._id === booking._id ? { ...b, status: 'started' } : b
+                )
+              );
+
+
+              socket.emit('booking-request-started',{   
+                            message: `${user.fullName} will be arriving shortly at you doorstep for your scheduled ${booking.service} on ${booking.date}`,
+                            date: new Date().toLocaleDateString(),
+                            user: booking.client,
+                            })
+              setClientId(booking.clientId); // Set the client ID for the route
+              setUserRoute(true);   //Starts displaying route to user location
+             
+            } catch (err) {
+              console.error('Error starting walk:', err);
+            }
+          }}
+          onCancel={async (booking) => {
+            try {
+              await axios.patch(`${import.meta.env.VITE_BASE_URL}/dogwalker/booking-status`, {
+                clerkId: user.id,
+                bookingId: booking._id,
+                status: 'cancelled',
+              });
+
+                setUpcomingBookings((prev) =>
+                prev.map((b) =>
+                  b._id === booking._id ? { ...b, status: 'cancelled' } : b
+                )
+              );
+                socket.emit('booking-request-cancelled',{   
+                            message: `Your accepted booking for ${booking.service} on ${booking.date} has been cancelled by ${user.fullName}. We apologize for the inconvenience.`,
+                            date: new Date().toLocaleDateString(),
+                            user: booking.client,
+                            })
+            } catch (err) {
+              console.error('Error cancelling walk:', err);
+            }
+          }}
+        />
+
+
+           {/* Show the live route map */}
+          <div className="bg-white p-4 rounded-lg shadow-md h-[500px]">
+           <h2 className="text-2xl font-bold mb-2">Directions to your booking location</h2>
+       {   userRoute && <RouteToUser userLocation={userLocation} />}
+        </div>
+
+
+
         </div>
       </div>
-      <Footer/>
+
+
+
+      {/* footer */}
+      <div className="mt-4"> 
+          <Footer/>
+      </div>
+    
     </div>
   );
 };
