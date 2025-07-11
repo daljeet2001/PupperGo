@@ -1,104 +1,125 @@
 import React, { useEffect, useState } from 'react';
-import {
-  GoogleMap,
-  DirectionsRenderer,
-  useJsApiLoader,
-} from '@react-google-maps/api';
+import { MapContainer, TileLayer, Marker, Polyline } from 'react-leaflet';
+import axios from 'axios';
 
-const containerStyle = {
-  width: '100%',
-  height: '400px',
-};
+const delhiCoords = [28.6139, 77.2090]; // Walker location
 
-const centerDefault = { lat: 28.6139, lng: 77.2090 }; // Delhi
+const RouteToUser = ({ userLocation }) => {
+  const [routeCoords, setRouteCoords] = useState([]);
+  const [instructions, setInstructions] = useState([]);
+  const [showRoute, setShowRoute] = useState(false);
 
-const RouteToUser = ({ userLocation, onCompleteWalk, onCancelWalk }) => {
-  const [directions, setDirections] = useState(null);
-  const [currentLocation, setCurrentLocation] = useState(null);
-  console.log('client location in routetouser:', userLocation);
+  const userLat = userLocation?.lat ?? userLocation?.ltd;
+  const userLng = userLocation?.lng;
 
+  const fetchRoute = async () => {
+    console.log("Start Journey clicked");
 
-  const { isLoaded } = useJsApiLoader({
-    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API,
-    libraries: ['places'],
-  });
+    if (!userLat || !userLng) {
+      console.warn("Invalid user location:", userLat, userLng);
+      return;
+    }
 
-  useEffect(() => {
-    if (!isLoaded || !userLocation?.lat || !userLocation?.lng) return;
-
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        const origin = {
-          lat: pos.coords.latitude,
-          lng: pos.coords.longitude,
-        };
-        setCurrentLocation(origin);
-
-        const destination = {
-          lat: userLocation.lat,
-          lng: userLocation.lng,
-        };
-
-        const directionsService = new window.google.maps.DirectionsService();
-
-        directionsService.route(
-          {
-            origin,
-            destination,
-            travelMode: window.google.maps.TravelMode.WALKING,
+    try {
+      const response = await axios.post(
+        'https://api.openrouteservice.org/v2/directions/foot-walking/geojson',
+        {
+          coordinates: [
+            [delhiCoords[1], delhiCoords[0]], // origin [lng, lat]
+            [userLng, userLat],              // destination [lng, lat]
+          ],
+        },
+        {
+          headers: {
+            Authorization: import.meta.env.VITE_OPENROUTESERVICE_API_KEY,
+            'Content-Type': 'application/json',
           },
-          (result, status) => {
-            if (status === 'OK') {
-              setDirections(result);
-            } else {
-              console.error('Directions request failed:', status);
-            }
-          }
-        );
-      },
-      (error) => {
-        console.error('Geolocation error:', error);
-      }
-    );
-  }, [isLoaded, userLocation]);
+        }
+      );
 
-  if (!isLoaded) return <p>Loading map...</p>;
+      const geometry = response.data.features[0].geometry.coordinates;
+      const coords = geometry.map(([lng, lat]) => [lat, lng]);
+
+      const segment = response.data.features[0].properties.segments[0];
+      const steps = segment.steps || [];
+
+      setRouteCoords(coords);
+      setInstructions(steps);
+      setShowRoute(true);
+    } catch (error) {
+      console.error('Route fetch error:', error);
+    }
+  };
 
   return (
-    <div className="relative w-full h-[450px] rounded-xl overflow-hidden shadow-md">
-      <GoogleMap
-        mapContainerStyle={containerStyle}
-        center={currentLocation || centerDefault}
-        zoom={14}
-      >
-        {directions && <DirectionsRenderer directions={directions} />}
-      </GoogleMap>
+    <div className="relative w-full rounded-xl overflow-hidden shadow-md">
+      {/* Buttons */}
+      <div className="absolute bottom-4 left-4 z-[1000] flex gap-2">
+        {!showRoute ? (
+          <button
+            onClick={fetchRoute}
+            className="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700 transition"
+          >
+            Start Journey
+          </button>
+        ) : (
+          <>
+            <button
+              onClick={() => {
+                setShowRoute(false);
+                setInstructions([]);
+                setRouteCoords([]);
+              }}
+              className="bg-red-500 text-white px-4 py-2 rounded shadow hover:bg-red-600"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={() => alert("Walk marked as complete")}
+              className="bg-green-600 text-white px-4 py-2 rounded shadow hover:bg-green-700"
+            >
+              Complete Walk
+            </button>
+          </>
+        )}
+      </div>
 
-      {/* Overlay UI */}
-      {/* <div className="absolute bottom-4 left-4 right-4 flex justify-between gap-2 bg-white/80 p-3 rounded-md shadow-md">
-        <div>
-          <p className="text-sm font-semibold">Walking to: {user?.name || 'User'}</p>
-          <p className="text-xs text-gray-600">
-            Location: {user?.lat}, {user?.lng}
-          </p>
+      {/* Map */}
+      <MapContainer
+        center={delhiCoords}
+        zoom={13}
+        scrollWheelZoom={true}
+        style={{ height: '450px', width: '100%' }}
+      >
+        <TileLayer
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          attribution='&copy; OpenStreetMap contributors'
+        />
+
+        {/* Markers */}
+        <Marker position={delhiCoords} />
+        {userLat && userLng && <Marker position={[userLat, userLng]} />}
+
+        {/* Route line */}
+        {showRoute && routeCoords.length > 0 && (
+          <Polyline positions={routeCoords} color="black" />
+        )}
+      </MapContainer>
+
+      {/* Step-by-step directions */}
+      {showRoute && instructions.length > 0 && (
+        <div className="p-4 bg-white rounded shadow mt-4 max-h-52 overflow-y-auto text-sm">
+          <h3 className="font-bold mb-2">Directions:</h3>
+          <ol className="list-decimal list-inside text-gray-800 space-y-1">
+            {instructions.map((step, index) => (
+              <li key={index}>{step.instruction}</li>
+            ))}
+          </ol>
         </div>
-        <div className="flex gap-2">
-          <button
-            onClick={onCancelWalk}
-            className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 text-sm rounded"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={onCompleteWalk}
-            className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 text-sm rounded"
-          >
-            Complete
-          </button>
-        </div>
-      </div> */}
+      )}
     </div>
   );
 };
 
 export default RouteToUser;
+

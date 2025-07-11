@@ -39,6 +39,7 @@ const userSchema = new mongoose.Schema({
     {
       message: String,
       date: String,
+      dogwalkerId:String,
       expireAt: {
         type: Date,
         default: () => Date.now() + 3 * 24 * 60 * 60 * 1000,

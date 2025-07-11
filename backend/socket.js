@@ -3,6 +3,8 @@ import dogwalkerModel from './models/dogwalker.model.js';
 import User from './models/user.model.js';
 
 let io;
+const userSockets = new Map(); 
+
 
 function initializeSocket(server) {
     io = new SocketIo(server, {
@@ -13,7 +15,7 @@ function initializeSocket(server) {
     });
 
     io.on('connection', (socket) => {
-        console.log(`Client connected: ${socket.id}`);
+    console.log(`Client connected: ${socket.id}`);
 
     socket.on('join', async (data) => {
     const { clerkId, userType } = data;
@@ -37,6 +39,11 @@ function initializeSocket(server) {
         socket.emit('error', { message: 'Failed to join socket room' });
     }
     });
+
+    socket.on('register-user', ({ clerkId }) => {
+    userSockets.set(clerkId, socket.id);
+    console.log(` Registered ${clerkId} to socket ${socket.id}`);
+  });
 
 
         socket.on('update-location-dogwalker', async (data) => {
@@ -80,7 +87,6 @@ function initializeSocket(server) {
             },
             { new: true }
             );
-
         });
 
         socket.on('new-notification-user', async (data) => {
@@ -147,18 +153,20 @@ function initializeSocket(server) {
         });
 
         socket.on('booking-request-started', async (data) => {
-            const { user, message, date } = data;
+            const { user, message, date,dogwalkerId,userClerkId } = data;
             // console.log('Notification data:', data);
 
             if (!message || !user) {
                 return socket.emit('error', { message: 'Invalid notification data' });
             }
 
+
+
             try {
                 // Update the user with the new notification
                 const updatedUser = await User.findOneAndUpdate(
                     { username: user }, // Match user by name
-                    { $push: { notifications: { message, date } } }, // Push the notification to the user's notifications array
+                    { $push: { notifications: { message, date,dogwalkerId } } }, // Push the notification to the user's notifications array
                     { new: true } // Return the updated document
                 );
 
@@ -166,7 +174,18 @@ function initializeSocket(server) {
                     console.error('User not found');
                     return socket.emit('error', { message: 'User not found' });
                 }
-                // console.log('Updated user:', updatedUser);
+
+                const targetSocketId = userSockets.get(userClerkId); 
+
+                if (targetSocketId) {
+                    io.to(targetSocketId).emit('upcoming-dogwalker', { dogwalkerId });
+                    console.log(`🚀 Sent upcoming-dogwalker to ${user} at ${targetSocketId}`);
+                } else {
+                    console.log(`⚠️ No active socket for user ${user}`);
+                }
+               
+
+             
 
                 // console.log('Notification added successfully to user:', updatedUser.notifications);
             } catch (error) {
@@ -205,8 +224,14 @@ function initializeSocket(server) {
 
 
         socket.on('disconnect', () => {
-            console.log(`Client disconnected: ${socket.id}`);
-        });
+        for (const [clerkId, id] of userSockets.entries()) {
+        if (id === socket.id) {
+        userSockets.delete(clerkId);
+        console.log(`❌ Disconnected ${clerkId}`);
+        break;
+      }
+    }
+  });
     });
 }
 

@@ -498,9 +498,12 @@ useEffect(() => {
 
 
               socket.emit('booking-request-started',{   
-                            message: `${user.fullName} will be arriving shortly at you doorstep for your scheduled ${booking.service} on ${booking.date}`,
+                            message: `${user.fullName} will be arriving shortly at you doorstep for your scheduled ${booking.service}`,
                             date: new Date().toLocaleDateString(),
                             user: booking.client,
+                            userClerkId: booking.clientId,
+                            dogwalkerId: user.id, 
+
                             })
               setClientId(booking.clientId); // Set the client ID for the route
               setUserRoute(true);   //Starts displaying route to user location

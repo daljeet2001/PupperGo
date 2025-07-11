@@ -1,67 +1,66 @@
-import React from "react";
-import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
+import React from 'react';
+import { MapContainer, TileLayer, Marker, Tooltip } from 'react-leaflet';
+import L from 'leaflet';
 
-const containerStyle = {
-  width: "100%",
-  height: "100%",
-};
-
-const center = {
-  lat: 30.65,
-  lng: 76.85,
-};
+const center = [30.65, 76.85];
 
 const LiveTracking = ({ filterdogwalkers }) => {
-  const { isLoaded } = useJsApiLoader({
-    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API, // 🔑 Using environment variable
-  });
+  const offset = 0.0001;
 
-  if (!isLoaded) return <div>Loading map...</div>;
-
-  // Adjust markers with nearly the same coordinates
   const adjustedMarkers = filterdogwalkers.map((walker, index, array) => {
-    const offset = 0.0001; // Minor offset for overlapping markers
-    let adjustedLocation = { ...walker.location };
+    let adjustedLat = walker.location.ltd;
+    let adjustedLng = walker.location.lng;
 
-    // Check for nearby markers and adjust position
     for (let i = 0; i < index; i++) {
-      const prevWalker = array[i];
+      const prev = array[i].location;
       if (
-        Math.abs(prevWalker.location.ltd - walker.location.ltd) < offset &&
-        Math.abs(prevWalker.location.lng - walker.location.lng) < offset
+        Math.abs(prev.ltd - walker.location.ltd) < offset &&
+        Math.abs(prev.lng - walker.location.lng) < offset
       ) {
-        adjustedLocation = {
-          ltd: walker.location.ltd + offset * (index % 2 === 0 ? 1 : -1),
-          lng: walker.location.lng + offset * (index % 2 === 0 ? -1 : 1),
-        };
+        adjustedLat += offset * (index % 2 === 0 ? 1 : -1);
+        adjustedLng += offset * (index % 2 === 0 ? -1 : 1);
         break;
       }
     }
 
-    return { ...walker, location: adjustedLocation };
+    return {
+      ...walker,
+      adjustedLat,
+      adjustedLng,
+    };
+  });
+
+  const dogIcon = new L.Icon({
+    iconUrl: 'https://cdn-icons-png.freepik.com/512/5860/5860579.png',
+    iconSize: [30, 30],
+    iconAnchor: [15, 30],
   });
 
   return (
-    <div className="w-full h-full  shadow-lg overflow-hidden">
-      <GoogleMap mapContainerStyle={containerStyle} center={center} zoom={12}>
+    <div className="w-full h-full rounded-xl shadow-lg overflow-hidden">
+      <MapContainer
+        center={center}
+        zoom={12}
+        scrollWheelZoom={true}
+        style={{ width: '100%', height: '100%' }}
+      >
+        <TileLayer
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          attribution='&copy; OpenStreetMap contributors'
+        />
+
         {adjustedMarkers.map((walker, index) => (
           <Marker
             key={index}
-            position={{
-              lat: walker.location.ltd,
-              lng: walker.location.lng,
-            }}
-            // label={{
-            //   text: walker.name,
-            //   color: "white",
-            // }}
-            icon={{
-              url: "https://cdn-icons-png.freepik.com/512/5860/5860579.png", // Marker icon
-              scaledSize: new window.google.maps.Size(30, 30), // Adjust size as needed
-            }}
-          />
+            position={[walker.adjustedLat, walker.adjustedLng]}
+            icon={dogIcon}
+          >
+            <Tooltip direction="top" offset={[0, -10]} opacity={1}>
+              {walker.username}
+            </Tooltip>
+          </Marker>
         ))}
-      </GoogleMap>
+      </MapContainer>
     </div>
   );
 };

@@ -11,6 +11,7 @@ import Appbar from '../components/Appbar';
 import Footer from '../components/Footer';
 import { useUser } from '@clerk/clerk-react';
 import { useNavigate } from 'react-router-dom';
+import LiveMapPopup from '../components/LiveMapPopup';
 
 
 const UserHome = () => {
@@ -31,9 +32,11 @@ const UserHome = () => {
   const [requestingIds, setRequestingIds] = useState([]); // State to track requesting dogwalker IDs
   const [showNotifications, setShowNotifications] = useState(false);
   const [notifications, setNotifications] = useState([]); // Initialize with dummy data
+  const [upcomingDogwalkerId, setUpcomingDogwalkerId] = useState(null);
+  const [dogwalkerLocation, setDogwalkerLocation] = useState(null);
   const navigate = useNavigate();
   const { user, isSignedIn, isLoaded } = useUser();
-  console.log('User:', user);
+  // console.log('User:', user);
 
 
  
@@ -48,6 +51,48 @@ const UserHome = () => {
     };
     fetchAddresses();
   }, [filterdogwalkers]);
+
+
+useEffect(() => {
+    if (user?.id) {
+      socket.emit('register-user', { clerkId: user.id });
+    }
+  }, [user, isLoaded, isSignedIn]);
+
+  useEffect(() => {
+    socket.on('upcoming-dogwalker', (data) => {
+      console.log('Received upcoming dogwalker:', data.dogwalkerId);
+      setUpcomingDogwalkerId(data.dogwalkerId); 
+    });
+
+    return () => {
+      socket.off('upcoming-dogwalker');
+    };
+  }, []);
+
+useEffect(() => {
+  if (!upcomingDogwalkerId) return;
+
+  const fetchDogwalkerLocation = async () => {
+    try {
+      const res = await axios.get(
+        `${import.meta.env.VITE_BASE_URL}/dogwalker/location/${upcomingDogwalkerId}`
+      );
+      setDogwalkerLocation(res.data.location); // Make sure location is { lat, lng }
+    } catch (err) {
+      console.error('Error fetching dogwalker location:', err);
+    }
+  };
+
+  // Fetch immediately
+  fetchDogwalkerLocation();
+
+  // Set interval for polling every 5 seconds
+  const interval = setInterval(fetchDogwalkerLocation, 5000);
+
+  return () => clearInterval(interval); // Cleanup
+}, [upcomingDogwalkerId]);
+
 
 
 
@@ -255,6 +300,7 @@ useEffect(() => {
         setShowNotifications={setShowNotifications}
         notifications={notifications}
       />
+   
 
     
 
@@ -427,6 +473,19 @@ useEffect(() => {
               </div>
             </div>
           </div>
+
+          {/* Live loca */}
+        <div className="w-full max-w-3xl mx-auto p-4">
+          <h2 className="text-lg font-semibold mb-2">Live Location of upcoming walker</h2>
+
+          <div className="h-[400px] w-full rounded-xl overflow-hidden border shadow">
+            <LiveMapPopup dogwalkerLocation={dogwalkerLocation} />
+          </div>
+        </div>
+
+
+      
+
         </div>
 
         {/* Center Section: List of Pet Walkers */}

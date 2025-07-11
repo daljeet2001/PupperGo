@@ -212,4 +212,20 @@ router.patch('/booking-status',async (req, res) => {
 });
 
 
+router.get('/location/:clerkId', async (req, res) => {
+  try {
+    const dogwalker = await dogwalkerModel.findOne({ clerkId: req.params.clerkId });
+
+    if (!dogwalker || !dogwalker.location) {
+      return res.status(404).json({ message: 'Location not found' });
+    }
+
+    res.json({ location: dogwalker.location });
+  } catch (err) {
+    res.status(500).json({ message: 'Error fetching location' });
+  }
+});
+
+
+
 export default router;
