@@ -6,7 +6,7 @@ import 'leaflet/dist/leaflet.css';
 const LiveMapPopup = ({ dogwalkerLocation }) => {
   console.log('location of upcoming dogwalker inside liveTracking ', dogwalkerLocation);
 
-  if (!dogwalkerLocation) return <div>No location available</div>;
+  if (!dogwalkerLocation) return <div>Live Location will be available once your walk start</div>;
 
   const center = [dogwalkerLocation.ltd, dogwalkerLocation.lng];
 

@@ -5,6 +5,7 @@ import L from 'leaflet';
 const center = [30.65, 76.85];
 
 const LiveTracking = ({ filterdogwalkers }) => {
+  console.log('filterdogwalkers inside livetracking',filterdogwalkers)
   const offset = 0.0001;
 
   const adjustedMarkers = filterdogwalkers.map((walker, index, array) => {
@@ -37,7 +38,7 @@ const LiveTracking = ({ filterdogwalkers }) => {
   });
 
   return (
-    <div className="w-full h-full rounded-xl shadow-lg overflow-hidden">
+    <div className=" w-full h-full rounded-xl shadow-lg overflow-hidden">
       <MapContainer
         center={center}
         zoom={12}

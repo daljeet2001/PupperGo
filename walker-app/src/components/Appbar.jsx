@@ -17,9 +17,9 @@ export default function Appbar({ showNotifications, setShowNotifications, notifi
   return (
     <header className="w-full bg-white border-b border-gray-200 px-6 py-4 shadow-sm flex items-center justify-between font-[Open_Sans]">
       {/* Left: Logo */}
-      <div className="flex items-center space-x-1 text-black font-bold text-2xl">
-        <span className="text-2xl font-bold tracking-tight">PupperPro</span>
-        <FontAwesomeIcon icon={faPaw} size="sm" />
+      <div className="flex items-center ml-4 text-black font-bold text-2xl">
+        <span className="text-2xl font-bold tracking-tight">PupperGo</span>
+      
       </div>
 
       {/* Right: Auth, Notifications & Help */}
@@ -75,15 +75,6 @@ export default function Appbar({ showNotifications, setShowNotifications, notifi
         <SignedIn>
           <UserButton forceRedirectUrl="/" />
         </SignedIn>
-
-        {/* Help link */}
-        <Link
-          to="/help"
-          className="hidden md:flex items-center space-x-1 hover:text-black text-sm"
-        >
-          <HelpCircle className="w-4 h-4" />
-          <span>Help</span>
-        </Link>
       </div>
     </header>
   );

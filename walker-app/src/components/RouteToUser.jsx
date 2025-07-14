@@ -2,12 +2,25 @@ import React, { useEffect, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Polyline } from 'react-leaflet';
 import axios from 'axios';
 
-const delhiCoords = [28.6139, 77.2090]; // Walker location
+const delhiCoords = [28.6139, 77.2090];
 
+ 
 const RouteToUser = ({ userLocation }) => {
   const [routeCoords, setRouteCoords] = useState([]);
   const [instructions, setInstructions] = useState([]);
   const [showRoute, setShowRoute] = useState(false);
+  const [origin, setOrigin] = useState(null);
+
+  useEffect(() => {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setOrigin([position.coords.latitude, position.coords.longitude]);
+      },
+      (error) => {
+        console.error("Error getting current location:", error);
+      }
+    );
+  }, []);
 
   const userLat = userLocation?.lat ?? userLocation?.ltd;
   const userLng = userLocation?.lng;
@@ -25,8 +38,8 @@ const RouteToUser = ({ userLocation }) => {
         'https://api.openrouteservice.org/v2/directions/foot-walking/geojson',
         {
           coordinates: [
-            [delhiCoords[1], delhiCoords[0]], // origin [lng, lat]
-            [userLng, userLat],              // destination [lng, lat]
+           [origin[1], origin[0]], // origin [lng, lat]
+           [userLng, userLat],              // destination [lng, lat]
           ],
         },
         {
@@ -86,7 +99,7 @@ const RouteToUser = ({ userLocation }) => {
 
       {/* Map */}
       <MapContainer
-        center={delhiCoords}
+       center={origin ?? delhiCoords} 
         zoom={13}
         scrollWheelZoom={true}
         style={{ height: '450px', width: '100%' }}
@@ -96,9 +109,11 @@ const RouteToUser = ({ userLocation }) => {
           attribution='&copy; OpenStreetMap contributors'
         />
 
+     
         {/* Markers */}
-        <Marker position={delhiCoords} />
+        {origin && <Marker position={origin} />}
         {userLat && userLng && <Marker position={[userLat, userLng]} />}
+
 
         {/* Route line */}
         {showRoute && routeCoords.length > 0 && (

@@ -3,6 +3,11 @@ import Footer from '../components/Footer'
 import { useState } from 'react'
 import { useUser } from '@clerk/clerk-react';
 import {useNavigate} from 'react-router-dom';
+import GetStarted from '../components/GetStarted'
+import Testimonials from '../components/Testimonials'
+import CallToAction from '../components/CallToAction'
+
+
 
 
 const LandingPage = () => {
@@ -16,8 +21,18 @@ const LandingPage = () => {
     <div>
     <Appbar showNotifications={showNotifications}
             setShowNotifications={setShowNotifications}
-            notifications={notifications} />
-    landingPage
+            notifications={notifications} /> 
+    <div className="mb-2">
+      <GetStarted/>   
+    </div>    
+  
+
+    <Testimonials/> 
+  
+    <CallToAction/>
+
+     
+ 
     <Footer/>
     </div>
   )
