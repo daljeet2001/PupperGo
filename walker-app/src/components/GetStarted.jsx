@@ -10,16 +10,17 @@ export default function GetStarted() {
       className="w-full h-[500px] bg-cover bg-center relative text-white"
       style={{
         backgroundImage:
-          "url('https://images.unsplash.com/photo-1705368118174-ae5c17c0036d?q=80&w=2075&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')",
+          "url('https://images.unsplash.com/photo-1601758260651-32188a43c9b3?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')",
       }}
     >
       {/* Centered Text Content */}
       <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-4">
         <h1 className="text-3xl md:text-5xl font-bold mb-4 drop-shadow-lg">
-          Find Trusted Dog Walkers Near You
+         Get paid to play with pets
         </h1>
-        <p className="text-base md:text-lg max-w-xl drop-shadow-md">
-          Book background-checked walkers and track your dog’s walk in real time—all from your phone.
+        <p className="text-base md:text-lg max-w-xl drop-shadow-md">         
+          PupperGo makes it easy and promotes you to the nation’s largest network of pet owners.
+          Earn money doing something you love.
         </p>
       </div>
 

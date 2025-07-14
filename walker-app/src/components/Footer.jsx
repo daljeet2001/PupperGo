@@ -4,14 +4,15 @@ import { Facebook, Twitter, Linkedin, Mail, PhoneCall } from "lucide-react";
 
 export default function Footer() {
   return (
-    <footer className="bg-white text-black py-12 px-6">
+    <footer className="bg-gray-100 text-black py-12 px-6">
       <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
         {/* Brand Info */}
         <div>
-          <h2 className="text-black text-2xl font-bold mb-3">MintSafe</h2>
-          <p className="text-sm">
-            Secure, fast, and reliable payment solutions built for modern merchants.
-          </p>
+          <h2 className="text-black text-2xl font-bold mb-3">PupperGo</h2>
+        <p className="text-sm">
+            Trusted dog walking services with real-time tracking, secure bookings, and happy tails—every time.
+        </p>
+
         </div>
 
         {/* Links */}
@@ -29,7 +30,7 @@ export default function Footer() {
         <div>
           <h3 className="text-black text-lg font-semibold mb-3">Contact Us</h3>
           <div className="flex items-center gap-2 text-sm mb-2">
-            <Mail size={16} /> support@mintsafe.io
+            <Mail size={16} /> support@puppergo.io
           </div>
           <div className="flex items-center gap-2 text-sm">
             <PhoneCall size={16} /> +91-9876543210
@@ -44,7 +45,7 @@ export default function Footer() {
 
       {/* Bottom */}
       <div className="text-center text-xs text-gray-500 mt-10 border-t border-gray-600 pt-6">
-        © {new Date().getFullYear()} MintSafe. All rights reserved.
+        © {new Date().getFullYear()} PupperGo. All rights reserved.
       </div>
     </footer>
   );

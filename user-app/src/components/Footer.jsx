@@ -4,7 +4,7 @@ import { Facebook, Twitter, Linkedin, Mail, PhoneCall } from "lucide-react";
 
 export default function Footer() {
   return (
-    <footer className="bg-white text-black py-12 px-6">
+    <footer className="bg-gray-100 text-black py-12 px-6">
       <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
         {/* Brand Info */}
         <div>

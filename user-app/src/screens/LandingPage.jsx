@@ -6,6 +6,7 @@ import {useNavigate} from 'react-router-dom';
 import GetStarted from '../components/GetStarted'
 import Testimonials from '../components/Testimonials'
 import CallToAction from '../components/CallToAction'
+import HowItWorksTimeline from '../components/HowItWorksTimeline'
 
 
 
@@ -22,17 +23,15 @@ const LandingPage = () => {
     <Appbar showNotifications={showNotifications}
             setShowNotifications={setShowNotifications}
             notifications={notifications} /> 
-    <div className="mb-2">
+    <div className="">
       <GetStarted/>   
     </div>    
   
-
-    <Testimonials/> 
+   
   
+    <Testimonials/> 
     <CallToAction/>
-
-     
- 
+    <HowItWorksTimeline/>
     <Footer/>
     </div>
   )

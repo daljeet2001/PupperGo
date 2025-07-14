@@ -12,13 +12,17 @@ import {
 import Badge from "@mui/material/Badge";
 import Box from "@mui/material/Box";
 
-// ✅ Props passed from parent
+
 export default function Appbar({ showNotifications, setShowNotifications, notifications }) {
   return (
     <header className="w-full bg-white border-b border-gray-200 px-6 py-4 shadow-sm flex items-center justify-between font-[Open_Sans]">  
       <div className="flex items-center ml-4 text-[#0E2148] font-bold text-2xl">
         <span className="text-2xl font-bold tracking-tight">PupperGo</span>    
       </div>
+        
+      <SignedIn>
+          <UserButton forceRedirectUrl="/" />
+      </SignedIn>
     </header>
   );
 }
