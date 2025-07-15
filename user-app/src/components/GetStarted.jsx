@@ -10,7 +10,7 @@ export default function GetStarted() {
       className="w-full h-[500px] bg-cover bg-center relative text-white"
       style={{
         backgroundImage:
-          "url('https://images.unsplash.com/photo-1705368118174-ae5c17c0036d?q=80&w=2075&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')",
+          "url('https://images.unsplash.com/photo-1621265845825-b261b2aa439f?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')",
       }}
     >
       {/* Centered Text Content */}
