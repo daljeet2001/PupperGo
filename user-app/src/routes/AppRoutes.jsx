@@ -2,7 +2,8 @@ import React from 'react'
 import { Route, Routes } from 'react-router-dom'
 import UserHome from '../screens/UserHome'
 import LandingPage from '../screens/LandingPage'
-import Demo from '../screens/demo'
+import RequestPage from '../screens/RequestPage'
+
 
 
 
@@ -17,7 +18,7 @@ const AppRoutes = () => {
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/home" element={<UserHome />} />
-        <Route path="/demo" element={<Demo/>}/>
+        <Route path="/request/:id" element={<RequestPage/>}/>
       </Routes>
     </>
   );

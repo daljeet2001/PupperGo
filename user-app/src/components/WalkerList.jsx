@@ -1,5 +1,11 @@
 import React from "react";
 import axios from "axios";
+import {Search,Calendar,Star} from "lucide-react"
+import { useNavigate } from 'react-router-dom';
+
+function getInitial(username) {
+  return username?.charAt(0).toUpperCase() || "";
+}
 
 export default function WalkerList({
   filterdogwalkers,
@@ -11,117 +17,75 @@ export default function WalkerList({
   requestingIds,
   setRequestingIds,
 }) {
+  const navigate = useNavigate();
   return (
-    <div className=" flex flex-col justify-start bg-white p-4 rounded-lg shadow-md space-y-4 overflow-y-auto">
-      <h2 className="text-2xl font-medium">
-        <i className="ri-map-pin-line mr-1"></i>Sitters in your area
-      </h2>
+    <div className=" flex flex-col justify-center bg-white overflow-y-auto max-w-5xl w-full mx-auto px-4 py-8">
+    <h1 className="flex items-center gap-1 font-semibold text-xl text-gray-600">
+    <Search className="w-5 h-5" />
+    Find a match
+    </h1>
+    <h2 className="text-base  text-gray-600 w-full max-w-3xl mb-2">Scroll down to browse Dog Walking near you in {filters.location}</h2> 
 
-      <div className="flex flex-wrap text-sm text-gray-600">
-        <h4 className="mr-1">You're seeing sitters available on</h4>
-        <p className="text-gray-800 font-medium">{filters.startDate}</p>
-      </div>
-
-      <div className="w-full space-y-4">
-        {filterdogwalkers.map((walker, index) => (
-          <div
-            key={index}
-            className="p-4 bg-white rounded-lg shadow-md border-t border-gray-300 mt-4"
-          >
-            {/* Top Row */}
-            <div className="flex justify-between items-center">
-              <div className="flex items-center space-x-4">
-                <img
-                  src={walker.profileImage || "https://via.placeholder.com/150"}
-                  alt="Profile"
-                  className="w-12 h-12 rounded-full object-cover"
-                />
-                <h3 className="text-lg font-semibold">{walker.username}</h3>
-              </div>
-              <div className="text-right">
-                <span className="text-sm text-gray-500">from</span>
-                <p className="font-semibold text-green-600">
-                  ₹{walker.hourlyRate} / walk
-                </p>
-              </div>
-            </div>
-
-            {/* Contact Info */}
-            <div className="mt-3 text-sm text-gray-700">
-              <p>
-                <strong>Email:</strong> {walker.email}
-              </p>
-              <p>
-                <strong>Phone:</strong> {walker.phone}
-              </p>
-              <p>
-                <strong>Location:</strong> {addresses[walker._id] || "Loading..."}
-              </p>
-            </div>
-
-            {/* Ratings */}
-            <div className="mt-3">
-              <p className="text-sm text-yellow-500">
-                ⭐️⭐️⭐️⭐️☆ ({walker.rating || "N/A"})
-              </p>
-              <p className="text-xs text-gray-500">
-                {walker.review || "No reviews available."}
-              </p>
-            </div>
-
-            {/* Description */}
-            <div className="mt-3 text-sm text-gray-800">
-              <p>{walker.description || "No description available."}</p>
-            </div>
-
-            {/* Send Request */}
-            <div className="mt-4">
-              <button
-                className="w-full px-4 py-2 text-sm font-medium text-white bg-blue-500 rounded-md hover:bg-blue-600 disabled:bg-gray-400"
-                disabled={requestingIds.includes(walker._id)}
-                onClick={async () => {
-                  setRequestingIds((prev) => [...prev, walker._id]);
-
-                  socket.emit("new-notification-user", {
-                    user: walker.username,
-                    message: `${user.fullName} has sent you a ${filters.service} request`,
-                    date: new Date().toLocaleString(),
-                  });
-
-                  try {
-                    const response = await axios.get(
-                      `${import.meta.env.VITE_BASE_URL}/map/send-request`,
-                      {
-                        params: {
-                          user: JSON.stringify({
-                            id: user?.id,
-                            name: user?.username || user?.firstName || "Anonymous",
-                            profileImage: user?.imageUrl,
-                          }),
-                          filters: JSON.stringify({
-                            location: filters.location,
-                            service: filters.service,
-                            startDate: filters.startDate,
-                            endDate: filters.endDate,
-                            timeNeeded: filters.timeNeeded,
-                            rateRange: value,
-                          }),
-                          dogwalkerId: walker.clerkId,
-                        },
-                      }
-                    );
-                    console.log("Request sent successfully:", response.data);
-                  } catch (error) {
-                    console.error("Error sending request:", error);
-                  }
-                }}
-              >
-                Send Request
-              </button>
-            </div>
+<div className="w-full">
+  {filterdogwalkers.map((walker, index) => (
+    <div
+      key={index}
+      onClick={() =>    
+      navigate(`/request/${walker.id}`, {
+      state: { walkerName: walker.username }
+    })}
+      className={`flex flex-col bg-white border-b border-gray-200 p-3 hover:cursor-pointer ${
+        index === 0 ? "border-t border-gray-300" : ""
+      }`}
+    >
+      <div className="flex justify-between items-start">
+        <div className="flex space-x-3">
+          <div className="relative inline-flex items-center justify-center w-9 h-9 overflow-hidden bg-gray-100 rounded-full">
+            <span className="text-sm font-medium text-gray-600">
+              {getInitial(walker.username)}
+            </span>
           </div>
-        ))}
+
+          <div>
+            <h3 className="text-base font-semibold text-gray-900">
+              {index + 1}. {walker.username}
+            </h3>
+            <p className="text-xs text-gray-700">{walker.description}</p>
+            <p className="text-xs text-gray-600">
+              {addresses[walker._id] || "Your area"}
+            </p>
+          </div>
+        </div>
+
+        <div className="text-right min-w-[70px]">
+          <p className="text-xs text-gray-500">from</p>
+          <p className="text-green-600 font-bold text-lg">₹{walker.hourlyRate}</p>
+          <p className="text-xs text-gray-500">per walk</p>
+        </div>
       </div>
+
+      <div className="flex items-center gap-2 text-xs text-gray-700 mt-2">
+        <Star className="w-4 h-4" />
+        <span>
+          {walker.rating || "5.0"} • {walker.reviewCount || 20} reviews
+        </span>
+      </div>
+
+      <div className="mt-2">
+        <p className="text-xs italic text-gray-700">
+          “{walker.review || "Absolutely amazing! My dog came back happy and tired. The walker was friendly, punctual, and clearly loves animals. I’ll definitely book again!"}”
+        </p>
+      </div>
+
+      <div className="flex items-center gap-1 text-xs text-gray-600 mt-2">
+        <Calendar className="w-4 h-4" />
+        <p>Updated {walker.updated || "7 days ago"}</p>
+      </div>
+    </div>
+  ))}
+</div>
+
+
     </div>
   );
 }

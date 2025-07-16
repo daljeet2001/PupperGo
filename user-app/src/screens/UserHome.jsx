@@ -14,15 +14,16 @@ import { useNavigate } from 'react-router-dom';
 import LiveMapPopup from '../components/LiveMapPopup';
 import WalkerFilterForm from '../components/WalkerFilterForm'
 import WalkerList from '../components/WalkerList'
+import FinalForm from '../components/FinalForm'
+import CallToAction from '../components/CallToAction'
 
 
 const UserHome = () => {
+  const [startDate, setStartDate] = useState(null);
+  const [endDate,setEndDate] =useState(null);
   const [filters, setFilters] = useState({
     location: '',
     service: 'Dog walking',
-    startDate: '',
-    endDate: '',
-    walkersPerDay: '',
     timeNeeded: '',
   });
 
@@ -259,6 +260,7 @@ const UserHome = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log(filters)
 
     try {
       const response1 = await axios.get(`${import.meta.env.VITE_BASE_URL}/map/get-coordinates`, {
@@ -275,13 +277,10 @@ const UserHome = () => {
       });
       console.log('response2:', response2.data);
 
-      const dateRange = getDateRangeStrings(filters.startDate, filters.endDate);
-
+      const dateRange = getDateRangeStrings(startDate,endDate);
       const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/dogwalker/filter`, {
         NearbyWalkers: response2.data,
         dates: dateRange, // Pass dates as an array
-        hourlyRatelow: value[0],
-        hourlyRatehigh: value[1],
       });
       setFilterDogWalkers(response.data);
     } catch (error) {
@@ -293,68 +292,50 @@ const UserHome = () => {
   if (!isSignedIn) return <div>Please sign in</div>;
     
   return (
-    <div className="flex flex-col min-h-screen bg-gray-100">
-      {/* Header */}
+    <div className="flex flex-col min-h-screen bg-white">
+     
       <Appbar
         showNotifications={showNotifications}
         setShowNotifications={setShowNotifications}
         notifications={notifications}
       />
-   
 
-    
-
-        {/* Main Content */}
-      <div className="flex flex-grow mt-4  px-6 space-x-4">
-        {/* Left Section */}
-        <div className="w-1/4 flex flex-col space-y-4 mx-4">
-        {/*Filter Form */}
-
-         <WalkerFilterForm
+      <FinalForm 
           filters={filters}
-          value={value}
           handleChange={handleChange}
-          handleChange2={handleChange2}
           handleSubmit={handleSubmit}
           handleLocationChange={handleLocationChange}
           locationSuggestions={locationSuggestions}
           handleSuggestionSelect={handleSuggestionSelect}
-        />
+          startDate={startDate}
+          endDate={endDate}
+          setStartDate={setStartDate}
+          setEndDate={setEndDate}
+      />
+<div className="flex flex-col lg:flex-row justify-center gap-4 mb-1">
 
-        {/* Live loca */}
-        <div className="w-full max-w-3xl mx-auto p-4">
-          <h2 className="text-lg font-semibold mb-2">Live Location of upcoming walker</h2>
+  
+  <div className="md:h-[700px] overflow-y-auto w-full max-w-3xl pr-2">
+    <WalkerList
+      filterdogwalkers={filterdogwalkers}
+      addresses={addresses}
+      filters={filters}
+      value={value}
+      user={user}
+      socket={socket}
+      requestingIds={requestingIds}
+      setRequestingIds={setRequestingIds}
+    />
+  </div>
 
-          <div className="h-[400px] w-full rounded-xl overflow-hidden border shadow">
-            <LiveMapPopup dogwalkerLocation={dogwalkerLocation} />
-          </div>
-        </div>
 
-        </div>
+  <div className="h-[700px] w-full md:max-w-sm">
+    <LiveTracking filterdogwalkers={filterdogwalkers} />
+  </div>
+</div>
 
-        {/* Center Section: List of Pet Walkers */}
-        <div className="w-3/8 flex flex-col justify-start bg-white p-4 rounded-lg shadow-md space-y-4 overflow-y-auto">
-        <WalkerList
-          filterdogwalkers={filterdogwalkers}
-          addresses={addresses}
-          filters={filters}
-          value={value}
-          user={user}
-          socket={socket}
-          requestingIds={requestingIds}
-          setRequestingIds={setRequestingIds}
-        />   
-        </div>
 
-     
-
-        {/* Right Section: LiveTracking */}
-        <div className="w-3/8 flex items-center justify-center bg-white h-screen sticky top-0 rounded-lg shadow-md  space-y-4 ">
-          <LiveTracking filterdogwalkers={filterdogwalkers} />
-        </div>
-      </div>
-      {/* Footer */}
-      <Footer />
+    <Footer />
     </div>
   );
 };

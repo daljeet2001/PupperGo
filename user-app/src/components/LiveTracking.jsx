@@ -5,7 +5,6 @@ import L from 'leaflet';
 const center = [30.65, 76.85];
 
 const LiveTracking = ({ filterdogwalkers }) => {
-  console.log('filterdogwalkers inside livetracking',filterdogwalkers)
   const offset = 0.0001;
 
   const adjustedMarkers = filterdogwalkers.map((walker, index, array) => {
@@ -38,30 +37,37 @@ const LiveTracking = ({ filterdogwalkers }) => {
   });
 
   return (
-    <div className=" w-full h-full rounded-xl shadow-lg overflow-hidden">
-      <MapContainer
-        center={center}
-        zoom={12}
-        scrollWheelZoom={true}
-        style={{ width: '100%', height: '100%' }}
-      >
-        <TileLayer
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          attribution='&copy; OpenStreetMap contributors'
-        />
+    <div className="w-full md:max-w-7xl mx-auto px-4 pt-8">
+      <h2 className="block md:hidden text-xl font-semibold mb-4 text-gray-600">
+       Where they’ll be
+      </h2>
 
-        {adjustedMarkers.map((walker, index) => (
-          <Marker
-            key={index}
-            position={[walker.adjustedLat, walker.adjustedLng]}
-            icon={dogIcon}
-          >
-            <Tooltip direction="top" offset={[0, -10]} opacity={1}>
-              {walker.username}
-            </Tooltip>
-          </Marker>
-        ))}
-      </MapContainer>
+
+      <div className=" h-[668px] w-full">
+        <MapContainer
+          center={center}
+          zoom={13}
+          scrollWheelZoom={true}
+          style={{ height: '100%', width: '100%' }}
+        >
+          <TileLayer
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            attribution='&copy; OpenStreetMap contributors'
+          />
+
+          {adjustedMarkers.map((walker, index) => (
+            <Marker
+              key={index}
+              position={[walker.adjustedLat, walker.adjustedLng]}
+              icon={dogIcon}
+            >
+              <Tooltip direction="top" offset={[0, -10]} opacity={1}>
+                {walker.username}
+              </Tooltip>
+            </Marker>
+          ))}
+        </MapContainer>
+      </div>
     </div>
   );
 };
