@@ -54,8 +54,12 @@ const DogWalkerSchema = new mongoose.Schema({
     upcomingBookings: [
         {
             _id: String,
-            date: String,
-            time: String,
+            startDate: String,
+            endDate: String,
+            startTime: String,
+            endTime: String,
+            dogCount: Number,
+            message: String,
             service: String,
             client: String,
             clientId: String,

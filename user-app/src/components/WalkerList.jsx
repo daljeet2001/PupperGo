@@ -16,6 +16,8 @@ export default function WalkerList({
   socket,
   requestingIds,
   setRequestingIds,
+  startDate,
+  endDate
 }) {
   const navigate = useNavigate();
   return (
@@ -32,7 +34,7 @@ export default function WalkerList({
       key={index}
       onClick={() =>    
       navigate(`/request/${walker.id}`, {
-      state: { walkerName: walker.username }
+      state: { walkerName: walker.username,filters:filters,startDate,endDate,walkerId:walker.clerkId}
     })}
       className={`flex flex-col bg-white border-b border-gray-200 p-3 hover:cursor-pointer ${
         index === 0 ? "border-t border-gray-300" : ""

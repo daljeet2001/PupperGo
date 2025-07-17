@@ -226,6 +226,21 @@ router.get('/location/:clerkId', async (req, res) => {
   }
 });
 
+router.get('/profile/:id', async (req, res) => {
+  try {
+    const dogwalker = await dogwalkerModel.findOne({ clerkId: req.params.id });
+
+    if (!dogwalker) {
+      return res.status(404).json({ error: 'Dogwalker not found' });
+    }
+
+    res.json(dogwalker);
+  } catch (err) {
+    console.error('Error:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 
 
 export default router;

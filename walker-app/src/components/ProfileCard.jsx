@@ -1,17 +1,17 @@
 import { useState } from 'react';
 import axios from 'axios';
-import {EditProfileModal} from './EditProfileModal';
-import { Edit } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 
+const getInitials = (name) => name?.charAt(0).toUpperCase() || '';
 
 export const ProfileCard = ({ user }) => {
-  const [isOpen, setIsOpen] = useState(false);
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     username: user.fullName || '',
     email: user.primaryEmailAddress?.emailAddress || '',
     phone: '',
-    description:'',
+    description: '',
     hourlyRate: '',
   });
 
@@ -22,63 +22,51 @@ export const ProfileCard = ({ user }) => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit2 = async (e) => {
     e.preventDefault();
-    // handle form submission logic
-    console.log('Updated Profile:', formData);
-    setIsOpen(false);
+    try {
+      const res = await axios.post(
+        `${import.meta.env.VITE_BASE_URL}/dogwalker/update-profile`,
+        {
+          clerkId: user.id,
+          ...formData,
+        }
+      );
+      console.log('Update success:', res.data);
+      setIsOpen(false);
+    } catch (error) {
+      console.error('Failed to update profile:', error.response?.data || error.message);
+    }
   };
-
-
-
-const handleSubmit2 = async (e) => {
-  e.preventDefault();
-
-  try {
-    const res = await axios.post(
-      `${import.meta.env.VITE_BASE_URL}/dogwalker/update-profile`,
-      {
-        clerkId: user.id,
-        ...formData,
-      }
-    );
-
-    console.log('Update success:', res.data);
-    setIsOpen(false);
-  } catch (error) {
-    console.error('Failed to update profile:', error.response?.data || error.message);
-  }
-};
-
 
   return (
     <>
-      {/* Profile Card */}
-      <div className="bg-white p-6 rounded-xl shadow-sm w-[280px] text-center">
-        <img
-          className="w-20 h-20 mx-auto rounded-full object-cover"
-          src={user.imageUrl}
-          alt="Profile"
-        />
-        <h2 className="mt-4 text-lg font-semibold">{user.username}</h2>
-        <p className="text-sm text-gray-400">Geek at Kickflow</p>
+      <div className="bg-white p-6 rounded-sm shadow-sm text-center flex items-center gap-4">
+   
+        <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center text-xl font-bold text-gray-600 shrink-0">
+          {getInitials(formData.username)}
+        </div>
 
-        <button
-          onClick={() => setIsOpen(true)}
-          className="mt-4 inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-700 hover:underline"
-        >
-          Edit Profile
-        </button>
+      
+        <div className="flex flex-col items-start justify-center text-left">
+          <h2 className="text-lg font-semibold text-gray-900">{user.fullName}</h2>
+          <button
+        onClick={() => navigate('/edit')}
+
+            className="mt-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:underline inline-flex items-center gap-1"
+          >
+            Edit Profile
+          </button>
+        </div>
       </div>
-
-      {/* Modal Overlay */}
-      <EditProfileModal
-        isOpen={isOpen}
-        setIsOpen={setIsOpen}
-        user={user}/>
-       
-
-
     </>
   );
 };
+
+
+
+
+
+ 
+
+         

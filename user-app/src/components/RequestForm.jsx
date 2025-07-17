@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState,useContext } from "react";
 import { format } from "date-fns";
 import { DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css";
@@ -7,6 +7,9 @@ import "react-datepicker/dist/react-datepicker.css";
 import { Calendar } from "lucide-react";
 import Select from "react-select";
 import { Minus, Plus,Dog,Cat,PawPrint } from "lucide-react";
+import { useUser } from '@clerk/clerk-react';
+import { SocketContext } from '../context/SocketContext';
+import axios from 'axios';
 
 
 const timeOptions = Array.from({ length: 48 }, (_, i) => {
@@ -59,20 +62,18 @@ const Counter = ({ count, onDecrement, onIncrement }) => (
 
 
 
-export default function RequestForm({walkerName}) {
-  const [date, setDate] = useState({
-    from: new Date("2025-07-17"),
-    to: new Date("2025-08-15"),
-  });
+export default function RequestForm({walkerName,filters,startDate,endDate,walkerId}) {
+  console.log(filters,walkerName,startDate,endDate,walkerId)
+
   const [startTime, setStartTime] = useState("");
-  const [endTime, setEndTime] = useState("");
-  const [message, setMessage] = useState("");
+  const [endTime, setEndTime] = useState();
+  const [message, setMessage] = useState();
   const [receiveUpdates, setReceiveUpdates] = useState(true);
-  const [startDate,setStartDate] =useState("")
-  const [endDate,setEndDate]=useState("")
   const [dogCount, setDogCount] = useState(1);
   const [catCount, setCatCount] = useState(0);
   const [selectedService,setSelectedService]=useState(serviceOptions[0]);
+  const { user, isSignedIn, isLoaded } = useUser();
+  const { socket } = useContext(SocketContext);
   
 
   return (
@@ -246,8 +247,45 @@ export default function RequestForm({walkerName}) {
     </a>.
     </div>
 
-    <button
+    <button 
     className="w-full mt-5 py-4 px-8 bg-blue-600 text-white text-base font-semibold rounded-full hover:bg-blue-700 transition"
+    onClick={async () => {
+                    
+                    socket.emit('new-notification-user', {
+                        user: walkerName,
+                        message: `${user.fullName} has sent you a ${selectedService?.value} request`,
+                        date: new Date().toLocaleString(),
+                      })
+                    try {
+                      const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/map/send-request`, {
+                        params: {
+                          user: JSON.stringify({
+                            id: user?.id,
+                            name: user?.fullName || user?.firstName || "Anonymous",
+                            profileImage: user?.imageUrl,
+                          }),
+                          filters: JSON.stringify({
+                            location: filters.location,
+                            service: selectedService?.value,
+                            startDate: startDate,
+                            endDate: endDate,
+                            startTime: startTime?.value,
+                            endTime:endTime.value,
+                            message:message,
+                            dogCount:dogCount
+
+                           
+                          }),
+                          dogwalkerId: walkerId,
+                        },
+                   
+                      });
+                      console.log('Request sent successfully:', response.data);
+                    } catch (error) {
+                      console.error('Error sending request:', error);
+                    }
+                  }}
+
     >
     Send request
     </button>

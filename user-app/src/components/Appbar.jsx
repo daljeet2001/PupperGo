@@ -33,7 +33,7 @@ export default function Appbar({ showNotifications, setShowNotifications, notifi
               notifications.map((n, i) => (
                 <div
                   key={i}
-                  className="p-3 rounded-md bg-gray-50 hover:bg-gray-100 transition mb-2 border border-gray-200"
+                  className="p-3  transition mb-2 rounded-xl shadow-inner"
                 >
                   <p className="text-sm text-gray-800">{n.message}</p>
                   <p className="text-xs text-gray-500 mt-1">{n.date}</p>

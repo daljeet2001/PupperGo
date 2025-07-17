@@ -100,14 +100,18 @@ export const sendRequest = async (req, res) => {
         const filters = JSON.parse(req.query.filters);
         const clerkId = req.query.dogwalkerId;
 
-        const time = filters.timeNeeded.split('to')[0].trim();
-        // console.log('Received request:', { user, filters, clerkId });
+        
+       
 
         const booking = {
             _id:uuidv4(),
-            date: filters.startDate,
-            time: time,
             service: filters.service,
+            startDate: filters.startDate,
+            endDate:filters.endDate,
+            startTime: filters.startTime,
+            endTime:filters.endTime,
+            dogCount:filters.dogCount,
+            message:filters.message,
             client: user.name,
             status: 'pending',
             clientId: user.id,

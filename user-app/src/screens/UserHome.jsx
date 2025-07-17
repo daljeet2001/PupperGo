@@ -325,6 +325,8 @@ const UserHome = () => {
       socket={socket}
       requestingIds={requestingIds}
       setRequestingIds={setRequestingIds}
+      startDate={startDate}
+      endDate={endDate}
     />
   </div>
 
