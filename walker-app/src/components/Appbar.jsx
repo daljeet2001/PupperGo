@@ -25,7 +25,7 @@ export default function Appbar({ showNotifications, setShowNotifications, notifi
         </button>
 
         {showNotifications && (
-          <div className="absolute top-6 right-0 mt-2 w-[320px] max-h-[400px] overflow-y-auto bg-white border border-gray-200 rounded-xl shadow-lg z-20 p-4">
+          <div className="absolute top-6 right-0 mt-2 w-[320px] max-h-[400px] overflow-y-auto bg-white border border-gray-200 rounded-xl shadow-lg  z-[1100] p-4">
             <h3 className="text-base font-semibold text-gray-800 mb-3 border-b pb-2">
               Notifications
             </h3>

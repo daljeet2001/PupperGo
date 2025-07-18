@@ -1,7 +1,7 @@
 import React from 'react';
 
 const EarnMoreCard = () => {
-  const profileLink = 'https://www.rover.com/sit/ameiam84352';
+  const profileLink = 'https://profilelink';
   const promoCode = 'AMEIAM84352';
 
   return (

@@ -10,6 +10,7 @@ import { Minus, Plus,Dog,Cat,PawPrint } from "lucide-react";
 import { useUser } from '@clerk/clerk-react';
 import { SocketContext } from '../context/SocketContext';
 import axios from 'axios';
+import {useNavigate} from 'react-router-dom';
 
 
 const timeOptions = Array.from({ length: 48 }, (_, i) => {
@@ -33,7 +34,7 @@ const serviceOptions = [
         <span>Dog Walking • in your neighborhood</span>
       </div>
     ),
-    value: "dog-walking",
+    value: "Dog Walking",
   },
 ];
 
@@ -63,8 +64,8 @@ const Counter = ({ count, onDecrement, onIncrement }) => (
 
 
 export default function RequestForm({walkerName,filters,startDate,endDate,walkerId}) {
-  console.log(filters,walkerName,startDate,endDate,walkerId)
-
+  // console.log(filters,walkerName,startDate,endDate,walkerId)
+  const navigate=useNavigate();
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState();
   const [message, setMessage] = useState();
@@ -278,9 +279,11 @@ export default function RequestForm({walkerName,filters,startDate,endDate,walker
                           }),
                           dogwalkerId: walkerId,
                         },
+                      
                    
                       });
                       console.log('Request sent successfully:', response.data);
+                      navigate('/home')
                     } catch (error) {
                       console.error('Error sending request:', error);
                     }

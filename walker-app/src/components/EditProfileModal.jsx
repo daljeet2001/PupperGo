@@ -93,12 +93,14 @@ useEffect(() => {
   return (
     <div className="flex items-center justify-center">
       <div className="bg-white w-full max-w-2xl  p-8">
-       <h1 style={{ fontSize: "2rem", fontWeight: "bold" }}>Edit</h1>
+       <h1 style={{ fontSize: "2rem", fontWeight: "bold" }}>Complete Your Profile
+
+</h1>
 
 <form onSubmit={handleSubmit2} className="space-y-6 mt-2 max-w-xl w-full">
 
 
-  <div className="flex gap-4 mt-2">
+  <div className="flex gap-4 mt-4">
 
     <div className="flex flex-col w-1/2">
       <label className="block text-sm font-medium text-gray-800 mb-1">Username</label>

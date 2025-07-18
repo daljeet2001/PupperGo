@@ -32,16 +32,18 @@ const UserHome = () => {
   const [value, setValue] = useState([100, 1000]);
   const [locationSuggestions, setLocationSuggestions] = useState([]);
   const [addresses, setAddresses] = useState({});
-  const [requestingIds, setRequestingIds] = useState([]); // State to track requesting dogwalker IDs
+  const [requestingIds, setRequestingIds] = useState([]); 
   const [showNotifications, setShowNotifications] = useState(false);
-  const [notifications, setNotifications] = useState([]); // Initialize with dummy data
+  const [notifications, setNotifications] = useState([]); 
   const [upcomingDogwalkerId, setUpcomingDogwalkerId] = useState(null);
   const [dogwalkerLocation, setDogwalkerLocation] = useState(null);
   const navigate = useNavigate();
   const { user, isSignedIn, isLoaded } = useUser();
   // console.log('User:', user);
 
-
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "auto" });
+  }, []);
  
   useEffect(() => {
       const fetchAddresses = async () => {

@@ -12,7 +12,7 @@ const NewMessageCard = () => {
           <PawPrint className="w-6 h-6 text-gray-400" />
         </div>
         <div>
-          <a href="#" className="text-blue-600 font-medium hover:underline">
+          <a href="/inbox" className="text-blue-600 font-medium hover:underline">
             Message from Brenda S.
           </a>
           <p className="text-sm text-gray-600">Jul 9, 2024</p>

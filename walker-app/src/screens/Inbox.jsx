@@ -1,5 +1,6 @@
 import Appbar from '../components/Appbar'
 import Footer from '../components/Footer'
+import RouteToUser from '../components/RouteToUser'
 import { useState,useEffect } from 'react'
 import { useUser } from '@clerk/clerk-react';
 import {useNavigate} from 'react-router-dom';
@@ -9,12 +10,16 @@ import axios from 'axios';
 
 
 
+
+
 const Inbox = () => {
    const navigate = useNavigate();
    const [showNotifications, setShowNotifications] = useState(false);
    const [notifications, setNotifications] = useState([]);
    const [Bookings, setBookings] = useState([]);
    const { user, isSignedIn, isLoaded } = useUser();
+   const [live,setLive]=useState();
+   const [startJourney,setStartJourney]=useState(false);
 
    useEffect(() => {
     window.scrollTo({ top: 0, behavior: "auto" });
@@ -49,11 +54,11 @@ const Inbox = () => {
   fetchUpcomingBookings();
   fetchNotifications();
 
-  // Poll every 5 seconds
+  // Poll every 3 seconds
   const interval = setInterval(() => {
     fetchUpcomingBookings();
     fetchNotifications();
-  }, 5000);
+  }, 3000);
 
   // Cleanup on unmount
   return () => clearInterval(interval);
@@ -65,8 +70,11 @@ const Inbox = () => {
     <Appbar showNotifications={showNotifications}
             setShowNotifications={setShowNotifications}
             notifications={notifications} /> 
-       
-        <InboxComponent Bookings={Bookings}/>
+
+    <div className="flex flex-col md:flex-row justify-center">  
+        <div className=""><InboxComponent Bookings={Bookings} setLive={setLive} setStartJourney={setStartJourney}/></div>
+        <div className="h-[700px] w-full md:max-w-sm">  <RouteToUser userLocation={live} startJourney={startJourney} /> </div>
+    </div>   
   
     <Footer/>
     </div>

@@ -125,28 +125,28 @@ function initializeSocket(server) {
     
 
         socket.on('new-notification-dogwalker', async (data) => {
-            const { user, message, date } = data;
-            // console.log('Notification data:', data);
+            const { userId, message, date } = data;
+            console.log('Notification data:', data);
 
-            if (!message || !user) {
+            if (!message || !userId) {
                 return socket.emit('error', { message: 'Invalid notification data' });
             }
 
             try {
                 // Update the user with the new notification
                 const updatedUser = await User.findOneAndUpdate(
-                    { username: user }, // Match user by name
-                    { $push: { notifications: { message, date } } }, // Push the notification to the user's notifications array
-                    { new: true } // Return the updated document
+                    { clerkId: userId },
+                    { $push: { notifications: { message, date } } },
+                    { new: true } 
                 );
 
                 if (!updatedUser) {
                     console.error('User not found');
                     return socket.emit('error', { message: 'User not found' });
                 }
-                // console.log('Updated user:', updatedUser);
+                console.log('Updated user:', updatedUser);
 
-                // console.log('Notification added successfully to user:', updatedUser.notifications);
+                console.log('Notification added successfully to user:', updatedUser.notifications);
             } catch (error) {
                 console.error('Error updating user notifications:', error);
             }
@@ -165,9 +165,50 @@ function initializeSocket(server) {
             try {
                 // Update the user with the new notification
                 const updatedUser = await User.findOneAndUpdate(
-                    { username: user }, // Match user by name
-                    { $push: { notifications: { message, date,dogwalkerId } } }, // Push the notification to the user's notifications array
-                    { new: true } // Return the updated document
+                    { clerkId: userClerkId }, 
+                    { $push: { notifications: { message, date,dogwalkerId } } },
+                    { new: true } 
+                );
+
+                if (!updatedUser) {
+                    console.error('User not found');
+                    return socket.emit('error', { message: 'User not found' });
+                }
+
+                const targetSocketId = userSockets.get(userClerkId); 
+
+                if (targetSocketId) {
+                    io.to(targetSocketId).emit('upcoming-dogwalker', { dogwalkerId });
+                    console.log(`🚀 Sent upcoming-dogwalker to ${user} at ${targetSocketId}`);
+                } else {
+                    console.log(`⚠️ No active socket for user ${user}`);
+                }
+               
+
+             
+
+                // console.log('Notification added successfully to user:', updatedUser.notifications);
+            } catch (error) {
+                console.error('Error updating user notifications:', error);
+            }
+        });
+
+        socket.on('booking-request-completed', async (data) => {
+            const { user, message, date,dogwalkerId,userClerkId } = data;
+            // console.log('Notification data:', data);
+
+            if (!message || !user) {
+                return socket.emit('error', { message: 'Invalid notification data' });
+            }
+
+
+
+            try {
+                // Update the user with the new notification
+                const updatedUser = await User.findOneAndUpdate(
+                    { clerkId: userClerkId }, 
+                    { $push: { notifications: { message, date,dogwalkerId } } },
+                    { new: true } 
                 );
 
                 if (!updatedUser) {
