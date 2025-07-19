@@ -1,27 +1,40 @@
 import React, { useEffect, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Polyline } from 'react-leaflet';
 import axios from 'axios';
+import { useMap } from 'react-leaflet';
 
 const delhiCoords = [28.6139, 77.2090];
+
+const RecenterMap = ({ coords }) => {
+  const map = useMap();
+
+  useEffect(() => {
+    if (coords) {
+      map.setView(coords, map.getZoom());
+    }
+  }, [coords, map]);
+
+  return null;
+};
 
  
 const RouteToUser = ({ userLocation,startJourney }) => {
   const [routeCoords, setRouteCoords] = useState([]);
   const [instructions, setInstructions] = useState([]);
   const [showRoute, setShowRoute] = useState(false);
-  const [origin, setOrigin] = useState(delhiCoords);
-  // console.log( 'live inside map',userLocation)
+  const [origin, setOrigin] = useState();
+  console.log( 'origin inside map',origin)
 
-  // useEffect(() => {
-  //   navigator.geolocation.getCurrentPosition(
-  //     (position) => {
-  //       setOrigin([position.coords.latitude, position.coords.longitude]);
-  //     },
-  //     (error) => {
-  //       console.error("Error getting current location:", error);
-  //     }
-  //   );
-  // }, []);
+  useEffect(() => {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setOrigin([position.coords.latitude, position.coords.longitude]);
+      },
+      (error) => {
+        console.error("Error getting current location:", error);
+      }
+    );
+  }, []);
 
   const userLat = userLocation?.lat ?? userLocation?.ltd;
   const userLng = userLocation?.lng;
@@ -102,7 +115,7 @@ return (
     <div className="w-[350px] h-[600px] mx-auto my-4   overflow-hidden">
     
     <MapContainer
-      center={origin ?? delhiCoords}
+      center={delhiCoords}
       zoom={13}
       scrollWheelZoom={true}
       style={{ height: '600px', width: '100%' }}
@@ -118,6 +131,12 @@ return (
       {showRoute && routeCoords.length > 0 && (
         <Polyline positions={routeCoords} color="black" />
       )}
+
+       {origin && (
+       
+          <RecenterMap coords={origin} />
+       
+        )}
     </MapContainer>
     </div>
 

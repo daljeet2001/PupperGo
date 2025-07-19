@@ -70,14 +70,15 @@ export default function WalkerList({
 <div className="flex items-center text-xs text-gray-700 mt-2">
         <Star className="w-4 h-4 text-yellow-400 fill-yellow-400 mr-1" />
         <span>
-          {`${walker.reviews[0].rating}.0` || "4.0"} • {walker.reviews.length || 20} reviews
+         {walker?.reviews?.[0]?.rating ? `${walker.reviews[0].rating}.0` : "4.0"}
+         • {walker.reviews.length || 20} reviews
         </span>
       </div>
 </div>
 
       <div className="mt-2">
         <p className="text-xs italic text-gray-700">
-          “{walker.reviews[0].comment || "Absolutely amazing! My dog came back happy and tired. The walker was friendly, punctual, and clearly loves animals. I’ll definitely book again!"}”
+          “{walker?.reviews[0]?.comment || "Absolutely amazing! My dog came back happy and tired. The walker was friendly, punctual, and clearly loves animals. I’ll definitely book again!"}”
         </p>
       </div>
 

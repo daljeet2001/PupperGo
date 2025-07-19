@@ -27,12 +27,12 @@ export default function WalkerFilterForm({
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
           />
           {locationSuggestions.length > 0 && (
-            <ul className="border border-gray-200 rounded-md mt-2 bg-white max-h-40 overflow-y-auto">
+            <ul className="shadow-inner  rounded-xl mt-2 bg-white max-h-40 overflow-y-auto">
               {locationSuggestions.map((suggestion, index) => (
                 <li
                   key={index}
                   onClick={() => handleSuggestionSelect(suggestion)}
-                  className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                  className="px-4 py-2 rounded-md shadow-inner hover:bg-gray-100 cursor-pointer"
                 >
                   {suggestion}
                 </li>

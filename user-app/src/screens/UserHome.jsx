@@ -295,7 +295,7 @@ const UserHome = () => {
       <Loader/>
     </div>
   if (!isSignedIn) return <div className="flex h-screen justify-center items-center">
-      <Card/>
+      <Loader/>
     </div>;
     
   return (
