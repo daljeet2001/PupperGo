@@ -5,7 +5,7 @@ import LandingPage from '../screens/LandingPage'
 import RequestPage from '../screens/RequestPage'
 import Inbox from '../screens/Inbox'
 
-
+import Test from '../screens/test'
 
 
 
@@ -21,6 +21,7 @@ const AppRoutes = () => {
         <Route path="/home" element={<UserHome />} />
         <Route path="/request/:id" element={<RequestPage/>}/>
         <Route path="/inbox" element={<Inbox/>}/>
+        <Route path="/test" element={<Test/>}/>
       </Routes>
     </>
   );

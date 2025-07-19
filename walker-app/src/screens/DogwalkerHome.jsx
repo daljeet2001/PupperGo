@@ -18,7 +18,8 @@ import InviteAFriend from '../components/InviteAFriend'
 import EarnMoreCard from '../components/EarnMoreCard'
 import NewMessageCard from '../components/NewMessageCard'
 import WalletCard from '../components/WalletCard'
-
+import Loader from '../components/Loader'
+import Card from '../components/Card'
 
 
 const DogwalkerHome = () => {
@@ -210,14 +211,12 @@ useEffect(() => {
 
 
 
-  if (!isLoaded) return <div className="flex items-center justify-center h-screen w-screen bg-white">
-  <img
-    src="https://i.ytimg.com/vi/EcMlX_36gjs/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLCeRm3Bj7_7wf4f1mItqzz8GS7NIQ"
-    alt="Centered"
-    className="w-full h-full"
-  />
-</div>;
-  if (!isSignedIn) return <div>Please sign in</div>;
+  if (!isLoaded) return <div className="flex h-screen justify-center items-center">
+      <Loader/>
+    </div>
+  if (!isSignedIn) return <div className="flex h-screen justify-center items-center">
+      <Card/>
+    </div>;
 
  return (
   <div className="flex flex-col min-h-screen bg-gray-100">

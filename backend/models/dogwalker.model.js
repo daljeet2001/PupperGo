@@ -74,6 +74,28 @@ const DogWalkerSchema = new mongoose.Schema({
             expireAt: { type: Date, default: () => Date.now() + 3 * 24 * 60 * 60 * 1000 }, // 3 days from creation
         }
     ],
+    reviews: [
+    {
+      user: {
+        type: String,
+        required: true,
+      },
+      userId:{
+        type:String,
+  
+      },
+      rating: {
+        type: Number,
+        min: 1,
+        max: 5,
+        required: true,
+      },
+      comment: {
+        type: String,
+        trim: true,
+      },
+    },
+  ],
 });
 
 // Ensure TTL index is created for notifications

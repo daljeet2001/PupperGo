@@ -56,7 +56,7 @@ export const EditProfileModal = ({user}) => {
         clerkId: user.id,
         ...formData,
       });
-      navigate('/demo')
+      navigate('/home')
      
   
     } catch (error) {
@@ -220,7 +220,7 @@ useEffect(() => {
   <div className="flex justify-end gap-3 pt-4">
     <button
       type="button"
-      onClick={() => navigate('/demo')}
+      onClick={() => navigate('/home')}
       className="px-5 py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-full hover:bg-gray-100 transition"
     >
       Cancel

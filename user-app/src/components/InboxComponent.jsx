@@ -3,13 +3,18 @@ import axios from 'axios';
 import { SocketContext } from '../context/SocketContext';
 import { useUser } from '@clerk/clerk-react';
 import { useNavigate } from 'react-router-dom';
+import ReviewForm from '../components/ReviewForm'
 
 const tabs = [
   { label: 'All bookings' },
   { label: 'Pending bookings' },
   { label: 'Upcoming bookings' },
-  { label: 'Active bookings' }
+  { label: 'Active bookings' },
+  { label:'Completed bookings'}
 ];
+
+
+
 
 
 
@@ -22,8 +27,37 @@ const InboxComponent = ({ Bookings,setUpcomingDogwalkerId }) => {
   const [actionTaken, setActionTaken] = useState(false);
   const [actionTaken1,setActionTaken1]=useState(false);
   const [actionTaken2,setActionTaken2]=useState(false)
-
   const navigate=useNavigate();
+
+  const [reviewStatus, setReviewStatus] = useState({});
+  console.log(reviewStatus)
+  useEffect(() => {
+    const checkReviews = async () => {
+      const status = {};
+
+      for (let booking of Bookings) {
+        try {
+          const res = await axios.get(`${import.meta.env.VITE_BASE_URL}/dogwalker/has-reviewed`, {
+            params: {
+              walkerId: booking.walkerId,
+              userId: booking.clientId,
+            },
+
+            
+          });
+          status[booking._id] = res.data.hasReviewed;
+        } catch (err) {
+          console.error("Review check failed:", err);
+          status[booking._id] = false;
+        }
+      }
+
+      setReviewStatus(status);
+    };
+
+    if (Bookings?.length) checkReviews();
+  }, [Bookings]);
+
   
   useEffect(() => {
   const activeBooking = Bookings.find((b) => b.status === 'started');
@@ -38,6 +72,7 @@ const InboxComponent = ({ Bookings,setUpcomingDogwalkerId }) => {
     if (activeTab === 'Pending bookings') return booking.status === 'pending';
     if (activeTab === 'Upcoming bookings') return booking.status === 'accepted';
     if (activeTab === 'Active bookings') return booking.status === 'started';
+     if (activeTab === 'Completed bookings') return booking.status === 'completed';
     return true; 
   });
 
@@ -87,21 +122,22 @@ const InboxComponent = ({ Bookings,setUpcomingDogwalkerId }) => {
             </div>
           ) : (
             <div className="space-y-4">
-              {filteredBookings.map((booking) => (
-               <div
-                  key={booking._id}
-                  className="p-4 rounded-xl  shadow-inner"
-                >              
-                 <p className="text-sm text-gray-600">
+             {filteredBookings.map((booking) => (
+              <div
+                key={booking._id}
+                className="p-4 rounded-xl shadow-inner"
+              >
+                <p className="text-sm text-gray-600 mb-2">
                   You requested <span className="font-medium">{booking.service}</span> from <span className="font-medium">{booking.walkerName}</span> between {booking.startTime}–{booking.endTime} from {new Date(booking.startDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })} to {new Date(booking.endDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}. Message: <span className="italic">"{booking.message}"</span>
                 </p>
 
-
-                  
-                
-                </div>
-
-              ))}
+                {activeTab === 'Completed bookings' && !reviewStatus[booking._id] &&  (
+                  <div className="mt-4">
+                    <ReviewForm walkerId={booking.walkerId} user={booking.client} userId={booking.clientId}/>
+                  </div>
+                )}
+              </div>
+            ))}
             </div>
           )}
         </div>

@@ -275,5 +275,59 @@ router.get('/profile/:id', async (req, res) => {
 });
 
 
+router.post("/reviews", async (req, res) => {
+  const { walkerId, user, rating, comment,userId } = req.body;
+
+  try {
+  
+    const walker = await dogwalkerModel.findOne({ clerkId:walkerId});
+    if (!walker) {
+      return res.status(404).json({ message: "Dog walker not found" });
+    }
+
+
+    const review = {
+      user: user,
+      rating,
+      comment,
+      userId,
+    };
+
+   
+    walker.reviews.push(review);
+    console.log("review saved successfully")
+
+ 
+    await walker.save();
+
+    res.status(201).json({ success: true, message: "Review added successfully" });
+  } catch (error) {
+    console.error("Error submitting review:", error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
+
+router.get('/has-reviewed', async (req, res) => {
+  const { walkerId, userId } = req.query;
+
+  try {
+    const walker = await dogwalkerModel.findOne( {clerkId:walkerId});
+
+    if (!walker) return res.status(404).json({ error: 'Walker not found' });
+
+    const alreadyReviewed = walker.reviews.some(
+      (review) => review.userId === userId
+    );
+
+    return res.json({ hasReviewed: alreadyReviewed });
+  } catch (err) {
+    console.error('Review check error:', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
+
+
 
 export default router;
