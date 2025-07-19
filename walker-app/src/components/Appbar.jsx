@@ -8,9 +8,9 @@ export default function Appbar({ showNotifications, setShowNotifications, notifi
   return (
     <header className="w-full bg-white border-b border-gray-200 px-6 py-4 shadow-sm flex items-center justify-between">  
       <div className="flex items-center h-full">
-          <span className="ml-2 font-bold text-xl text-[#1E1E1F]">
+          <a className="ml-2 font-bold text-xl text-[#1E1E1F]" href="/home">
             PupperGo
-          </span>
+          </a>
       </div>
      
 

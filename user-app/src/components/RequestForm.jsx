@@ -254,7 +254,18 @@ export default function RequestForm({walkerName,filters,startDate,endDate,walker
                     
                     socket.emit('new-notification-user', {
                         user: walkerName,
-                        message: `${user.fullName} has sent you a ${selectedService?.value} request`,
+                        // message: `${user.fullName} has sent you a ${selectedService?.value} request`,
+                        message:`🐾 New Booking Request Received
+You’ve received a new booking request for a ${selectedService?.value} from ${new Date(startDate).toLocaleDateString('en-IN', {
+                            day: 'numeric',
+                            month: 'short',
+                            year: 'numeric',
+                          })} to ${new Date(endDate).toLocaleDateString('en-IN', {
+                            day: 'numeric',
+                            month: 'short',
+                            year: 'numeric',
+                          })}, scheduled between ${startTime.value} and ${endTime.value}.
+`,
                         date: new Date().toLocaleString(),
                       })
                     try {

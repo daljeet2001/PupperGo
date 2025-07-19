@@ -1,12 +1,13 @@
 import Appbar from '../components/Appbar'
 import Footer from '../components/Footer'
-import RouteToUser from '../components/RouteToUser'
-import { useState,useEffect } from 'react'
+import LiveMapPopup from '../components/LiveMapPopup'
+import { useState,useEffect,useContext } from 'react'
 import { useUser } from '@clerk/clerk-react';
 import {useNavigate} from 'react-router-dom';
 import { useLocation, useParams } from "react-router-dom";
-import InboxComponent from '../components/Inbox'
+import InboxComponent from '../components/InboxComponent'
 import axios from 'axios';
+import { SocketContext } from '../context/SocketContext';
 
 
 
@@ -20,16 +21,45 @@ const Inbox = () => {
    const { user, isSignedIn, isLoaded } = useUser();
    const [live,setLive]=useState();
    const [startJourney,setStartJourney]=useState(false);
+   const [dogwalkerLocation, setDogwalkerLocation] = useState(null);
+   const [upcomingDogwalkerId, setUpcomingDogwalkerId] = useState(null);
+   const { socket } = useContext(SocketContext);
+
 
    useEffect(() => {
     window.scrollTo({ top: 0, behavior: "auto" });
   }, []);
 
+
+
+   useEffect(() => {
+   if (!upcomingDogwalkerId) return;
+
+   const fetchDogwalkerLocation = async () => {
+    try {
+      const res = await axios.get(
+        `${import.meta.env.VITE_BASE_URL}/dogwalker/location/${upcomingDogwalkerId}`
+      );
+      setDogwalkerLocation(res.data.location); // Make sure location is { lat, lng }
+    } catch (err) {
+      console.error('Error fetching dogwalker location:', err);
+    }
+    };
+
+  // Fetch immediately
+  fetchDogwalkerLocation();
+
+  // Set interval for polling every 5 seconds
+  const interval = setInterval(fetchDogwalkerLocation, 5000);
+
+  return () => clearInterval(interval); // Cleanup
+}, [upcomingDogwalkerId]);
+
    useEffect(() => {
     if(!isLoaded) return; 
-  const fetchUpcomingBookings = async () => {
+    const fetchUpcomingBookings = async () => {
     try {
-      const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/dogwalker/upcoming-bookings`, { 
+      const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/dogwalker/upcoming-bookings-user`, { 
         params: { clerkId: user.id },
       });
       setBookings(response.data);
@@ -40,7 +70,7 @@ const Inbox = () => {
 
   const fetchNotifications = async () => {
     try {
-      const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/dogwalker/notifications`, {
+      const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/user/notifications`, {
         params: { clerkId: user.id },
       });
       setNotifications(response.data);
@@ -72,10 +102,10 @@ const Inbox = () => {
             notifications={notifications} /> 
 
     <div className="flex flex-col md:flex-row justify-center">  
-        <div className=""><InboxComponent Bookings={Bookings} setLive={setLive} setStartJourney={setStartJourney}/></div>
+        <div className=""><InboxComponent Bookings={Bookings} setUpcomingDogwalkerId={setUpcomingDogwalkerId}/></div>
         <div className="h-[700px] w-full md:max-w-sm">  
           
-          <RouteToUser userLocation={live} startJourney={startJourney} /> </div>
+          <LiveMapPopup dogwalkerLocation={dogwalkerLocation}/> </div>
     </div>   
   
     <Footer/>

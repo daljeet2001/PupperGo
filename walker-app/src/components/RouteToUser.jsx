@@ -67,6 +67,9 @@ const RouteToUser = ({ userLocation,startJourney }) => {
 
 return (
   <div className="relative w-full mx-auto px-4 pt-8">
+    <h2 className="block  text-xl font-semibold mb-4 text-gray-600">
+                En Route
+    </h2>
     {startJourney && <div className="absolute left-12 bottom-5 md:left-6 z-[1000] flex gap-2">
       {!showRoute  ? (
         <button
@@ -97,11 +100,12 @@ return (
       )}
     </div>}
     <div className="w-[350px] h-[600px] mx-auto my-4   overflow-hidden">
+    
     <MapContainer
       center={origin ?? delhiCoords}
       zoom={13}
       scrollWheelZoom={true}
-      style={{ height: '100vh', width: '100%' }}
+      style={{ height: '600px', width: '100%' }}
     >
       <TileLayer
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

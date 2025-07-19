@@ -198,7 +198,7 @@ const InboxComponent = ({ Bookings,setLive,setStartJourney }) => {
                      
                       </div>)}
 
-                      {booking.status === "started" && !actionTaken1 && (<div>
+                      {booking.status === "started" && !actionTaken1  && (<div>
                          {/* <button className="hover:cursor-pointer mr-2 text-sm text-gray-600"
                         //  onClick={()=>navigate('/navigate',{
                         //  state: {

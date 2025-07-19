@@ -2,21 +2,33 @@ import { UserButton, SignedIn, SignedOut, SignInButton, SignUpButton, SignOutBut
 import { Link } from "react-router-dom";
 import Badge from "@mui/material/Badge";
 import Box from "@mui/material/Box";
-import {BellPlus} from "lucide-react"
+import {BellPlus,MessageSquareDiff} from "lucide-react"
 
 export default function Appbar({ showNotifications, setShowNotifications, notifications }) {
   return (
     <header className="w-full bg-white border-b border-gray-200 px-6 py-4 shadow-sm flex items-center justify-between">  
       <div className="flex items-center h-full">
-          <span className="ml-2 font-bold text-xl text-[#1E1E1F]">
+          <a className="ml-2 font-bold text-xl text-[#1E1E1F]" href="/home">
             PupperGo
-          </span>
+          </a>
       </div>
      
 
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-1">
+
     <SignedIn>
       <div className="relative flex items-center">
+        <a
+          href="/inbox"
+          className="relative p-2 rounded-full hover:bg-gray-100 transition"
+        >
+          <MessageSquareDiff className="w-5 h-5 text-gray-700" />
+        </a>
+      </div>
+    </SignedIn>  
+
+    <SignedIn>
+      <div className="relative flex items-center -ml-2">
         <button
           onClick={() => setShowNotifications(!showNotifications)}
           className="relative p-2 rounded-full hover:bg-gray-100 transition"
@@ -25,7 +37,7 @@ export default function Appbar({ showNotifications, setShowNotifications, notifi
         </button>
 
         {showNotifications && (
-          <div className="absolute top-6 right-0 mt-2 w-[320px] max-h-[400px] overflow-y-auto bg-white border border-gray-200 rounded-xl shadow-lg z-20 p-4">
+          <div className="absolute top-6 right-0 mt-2 w-[320px] max-h-[400px] overflow-y-auto bg-white border border-gray-200 rounded-xl shadow-lg z-[1100] p-4">
             <h3 className="text-base font-semibold text-gray-800 mb-3 border-b pb-2">
               Notifications
             </h3>
@@ -48,6 +60,8 @@ export default function Appbar({ showNotifications, setShowNotifications, notifi
         )}
       </div>
     </SignedIn>
+
+  
 
     <SignedIn>
       <SignOutButton>

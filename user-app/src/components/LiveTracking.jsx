@@ -38,12 +38,12 @@ const LiveTracking = ({ filterdogwalkers }) => {
 
   return (
     <div className="w-full md:max-w-7xl mx-auto px-4 pt-8">
-      <h2 className="block md:hidden text-xl font-semibold mb-4 text-gray-600">
+      <h2 className="block  text-xl font-semibold mb-4 text-gray-600">
        Where they’ll be
       </h2>
 
 
-      <div className=" h-[668px] w-full">
+      <div className=" h-[600px] w-full">
         <MapContainer
           center={center}
           zoom={13}

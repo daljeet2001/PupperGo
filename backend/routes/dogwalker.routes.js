@@ -65,6 +65,39 @@ router.get('/upcoming-bookings',  async (req, res) => {
     }
 });
 
+
+
+router.get('/upcoming-bookings-user', async (req, res) => {
+  const { clerkId } = req.query;
+
+  try {
+    const dogwalkers = await dogwalkerModel.find();
+
+    const matchingBookings = [];
+
+    dogwalkers.forEach((walker) => {
+      const filtered = walker.upcomingBookings.filter(
+        (booking) => booking.clientId === clerkId
+      );
+
+      
+      filtered.forEach((booking) =>
+        matchingBookings.push({
+          ...booking.toObject(),
+          walkerName: walker.username,
+          walkerId:walker.clerkId
+        })
+      );
+    });
+
+    res.status(200).json(matchingBookings);
+    // console.log('matched bookings for user',matchingBookings);
+  } catch (err) {
+    res.status(500).json({ error: 'Server error fetching bookings' });
+  }
+});
+
+
 router.post('/update-booking-status', async (req, res) => {
     try {
         const { bookingId, status ,clerkId} = req.body;
@@ -212,9 +245,9 @@ router.patch('/booking-status',async (req, res) => {
 });
 
 
-router.get('/location/:clerkId', async (req, res) => {
+router.get('/location/:upcomingDogwalkerId', async (req, res) => {
   try {
-    const dogwalker = await dogwalkerModel.findOne({ clerkId: req.params.clerkId });
+    const dogwalker = await dogwalkerModel.findOne({ clerkId: req.params.upcomingDogwalkerId });
 
     if (!dogwalker || !dogwalker.location) {
       return res.status(404).json({ message: 'Location not found' });

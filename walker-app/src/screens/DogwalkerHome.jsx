@@ -210,7 +210,13 @@ useEffect(() => {
 
 
 
-  if (!isLoaded) return <div>Loading...</div>;
+  if (!isLoaded) return <div className="flex items-center justify-center h-screen w-screen bg-white">
+  <img
+    src="https://i.ytimg.com/vi/EcMlX_36gjs/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLCeRm3Bj7_7wf4f1mItqzz8GS7NIQ"
+    alt="Centered"
+    className="w-full h-full"
+  />
+</div>;
   if (!isSignedIn) return <div>Please sign in</div>;
 
  return (
