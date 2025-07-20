@@ -112,7 +112,7 @@ const InboxComponent = ({ Bookings,setLive,setStartJourney }) => {
                         day: 'numeric',
                         month: 'short',
                         year: 'numeric',
-                      })},scheduled between {booking.startTime} and {booking.endTime}. The client left the foloowing message:<span className="italic"> "{booking.message}" </span> ~{booking.client} </p>
+                      })},scheduled between {booking.startTime} and {booking.endTime}. The client left the following message:<span className="italic"> "{booking.message}" </span> ~{booking.client} </p>
 
                       {booking.status === "pending" && !actionTaken &&(<div>
                         <button className="hover:cursor-pointer mr-2 text-sm text-gray-600"

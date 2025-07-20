@@ -28,7 +28,9 @@ const LiveTracking = ({ filterdogwalkers }) => {
 
   
 
-  const adjustedMarkers = filterdogwalkers.map((walker, index, array) => {
+  const adjustedMarkers = filterdogwalkers
+  .filter((walker) => walker.location && walker.location.ltd && walker.location.lng)
+  .map((walker, index, array) => {
     let adjustedLat = walker.location.ltd;
     let adjustedLng = walker.location.lng;
 
@@ -50,6 +52,7 @@ const LiveTracking = ({ filterdogwalkers }) => {
       adjustedLng,
     };
   });
+
 
   const dogIcon = new L.Icon({
     iconUrl: 'https://cdn-icons-png.freepik.com/512/5860/5860579.png',
