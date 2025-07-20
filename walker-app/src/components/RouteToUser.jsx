@@ -25,6 +25,12 @@ const RouteToUser = ({ userLocation,startJourney }) => {
   const [origin, setOrigin] = useState();
   console.log( 'origin inside map',origin)
 
+  const dogIcon = new L.Icon({
+      iconUrl: 'https://cdn-icons-png.freepik.com/512/5860/5860579.png',
+      iconSize: [30, 30],
+      iconAnchor: [15, 30],
+    });
+
   useEffect(() => {
     navigator.geolocation.getCurrentPosition(
       (position) => {
@@ -125,7 +131,7 @@ return (
         attribution='&copy; OpenStreetMap contributors'
       />
 
-      {origin && <Marker position={origin} />}
+      {origin && <Marker position={origin} icon={dogIcon} />}
       {userLat && userLng && <Marker position={[userLat, userLng]} />}
 
       {showRoute && routeCoords.length > 0 && (
