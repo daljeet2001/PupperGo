@@ -23,10 +23,10 @@ export default function CallToAction() {
             your city.
           </p>
 
-          <button className="bg-[#0E2148] hover:opacity-90 text-white font-semibold rounded-full px-6 py-3 text-sm md:text-base flex items-center w-max transition">
+          <a  href="https://pupper-go-cgxb.vercel.app/" className="bg-[#0E2148] hover:opacity-90 text-white font-semibold rounded-full px-6 py-3 text-sm md:text-base flex items-center w-max transition">
             Become a Pet Caregiver
             <ArrowRight className="ml-2 w-4 h-4" />
-          </button>
+          </a>
         </div>
       </div>
     </div>
