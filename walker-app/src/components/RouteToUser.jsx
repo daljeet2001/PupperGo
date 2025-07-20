@@ -132,7 +132,7 @@ return (
       />
 
       {origin && <Marker position={origin} icon={dogIcon} />}
-      {userLat && userLng && <Marker position={[userLat, userLng]} />}
+      {userLat && userLng && <Marker position={[userLat, userLng]} icon={dogIcon}/>}
 
       {showRoute && routeCoords.length > 0 && (
         <Polyline positions={routeCoords} color="black" />
