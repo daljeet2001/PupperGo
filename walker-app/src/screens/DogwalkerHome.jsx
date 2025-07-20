@@ -8,7 +8,7 @@ import { useUser } from '@clerk/clerk-react';
 import { useNavigate } from 'react-router-dom';
 import { SocketContext } from '../context/SocketContext';
 import { Link } from 'react-router-dom';
-import Appbar from '../components/AppBar';
+import Appbar from '../components/Appbar';
 import Footer from '../components/Footer';
 import {ProfileCard} from '../components/ProfileCard';
 import UpcomingWalks from '../components/UpcomingWalks'
