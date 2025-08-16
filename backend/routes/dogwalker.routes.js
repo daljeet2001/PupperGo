@@ -4,44 +4,79 @@ import { body } from 'express-validator';
 import * as authMiddleware from '../middleware/auth.middleware.js';
 import dogwalkerModel from '../models/dogwalker.model.js';
 import upload from '../utils/cloudinaryStorage.js'; // Import multer upload middleware
+import {validationResult} from 'express-validator';
 
 const router = Router();
 
-// router.post('/register', 
-//     upload.single('image'), // Handle image upload
-//     [
-//         body('name').isLength({ min: 3 }).withMessage('Name must be at least 3 characters long'),
-//         body('email').isEmail().withMessage('Invalid Email'),
-//         body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters long'),
-//         body('phone').isLength({ min: 10 }).withMessage('Phone number must be at least 10 digits long'),
-//         body('description').isLength({ max: 200 }).withMessage('Description must not be longer than 200 characters'),
-//         body('hourlyRate').isNumeric().withMessage('Hourly rate must be a number'),
-//     ],
-//     dogwalkerController.registerDogwalker
-// );
-
-// router.post('/login', [
-//     body('email').isEmail().withMessage('Invalid Email'),
-//     body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters long')
-// ],
-//     dogwalkerController.loginDogwalker
-// );
-
-// router.get('/profile', dogwalkerController.getDogwalkerProfile);
-
-// router.get('/logout', authMiddleware.authDogwalker, dogwalkerController.logoutDogwalker);
 
 router.post('/filter', [
     body('NearbyWalkers').isArray().withMessage('NearbyWalkers must be an array'),
     body('dates').isArray().withMessage('Dates must be an array of strings'),
     body('hourlyRatelow').optional().isNumeric().withMessage('Hourly rate must be a number'),
     body('hourlyRatehigh').optional().isNumeric().withMessage('Hourly rate must be a number'),
-], dogwalkerController.filterDogwalkers);
+], async (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { NearbyWalkers, dates, hourlyRatelow, hourlyRatehigh } = req.body;
+    const query = {
+        clerkId: { $in: NearbyWalkers.map(walker => walker.clerkId) },
+    };
+
+    if (hourlyRatelow || hourlyRatehigh) {
+        query.hourlyRate = {};
+        if (hourlyRatelow) query.hourlyRate.$gte = Number(hourlyRatelow);
+        if (hourlyRatehigh) query.hourlyRate.$lte = Number(hourlyRatehigh);
+    }
+
+    if (dates && dates.length > 0) {
+        query.availability = {
+            // $all: dates.map(date => new Date(date)),
+             $in: dates 
+        };
+    }
+    // console.log("query", query);
+
+    try {
+        const dogwalkers = await dogwalkerModel.find(query);
+        // console.log("dogwalkers", dogwalkers);
+        res.status(200).json(dogwalkers);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
 
 router.post('/availability', [
     body('dates').isArray().withMessage('Dates must be an array of strings'),
     body('clerkId').isString().withMessage('clerkId ID must be a string'),
-], dogwalkerController.setAvailability);
+], async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { dates, clerkId } = req.body;
+
+    try {
+        const dogwalker = await dogwalkerModel.findOneAndUpdate(
+            { clerkId },
+            { availability: dates },
+            { new: true }
+        );
+
+        if (!dogwalker) {
+            return res.status(404).json({ message: 'Dogwalker not found' });
+        }
+
+        res.status(200).json({ message: 'Availability updated successfully', dogwalker });
+    } catch (error) {
+        console.error('Error updating availability:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
 
 router.get('/upcoming-bookings',  async (req, res) => {
     try {

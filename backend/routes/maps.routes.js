@@ -46,7 +46,7 @@ router.get('/send-request',
   query('filters').isString().withMessage('Filters must be a string'),
   query('dogwalkerId').isString().withMessage('Dogwalker ID must be a string'),
   
-  mapController.sendRequest // Call the controller function
+  mapController.sendRequest 
 );
 
 export default router;

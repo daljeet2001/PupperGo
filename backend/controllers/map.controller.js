@@ -1,9 +1,11 @@
 import * as mapService from '../services/maps.service.js';
-import { validationResult } from 'express-validator';
+import { query,validationResult } from 'express-validator';
 import dogwalkerModel from '../models/dogwalker.model.js';
 import {v4 as uuidv4} from 'uuid';
 
 export const getCoordinates = async (req, res, next) => {
+    // console.log('req.query:', req.query);
+
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
@@ -116,7 +118,7 @@ export const sendRequest = async (req, res) => {
             status: 'pending',
             clientId: user.id,
         };
-        console.log(booking);
+        // console.log(booking);
 
         // Find the dogwalker by ID
         const dogwalker = await dogwalkerModel.findOne({clerkId});
@@ -130,7 +132,7 @@ export const sendRequest = async (req, res) => {
         dogwalker.upcomingBookings.push(booking);
         await dogwalker.save();
 
-        console.log('Booking saved successfully');
+        // console.log('Booking saved successfully');
         res.status(200).json({ message: 'Booking saved successfully' });
     } catch (error) {
         console.error('Error processing request:', error);
