@@ -1,9 +1,8 @@
 
-## 🚀 Getting Started Locally
-
-### 1. Clone the Repository
+## Getting Started Locally
 
 ```bash
+##1. Clone the Repository
 git clone https://github.com/your-username/puppergo.git
 cd puppergo
 ----
