@@ -1,13 +1,3 @@
-🐾PupperGo is a full-stack dog walking service platform that enables users to find, book, and live-track professional dog walkers in real-time.
-
-## 🛠️ Tech Stack
-
-- **Frontend:** React + TailwindCSS  
-- **Backend:** Node.js + Express  
-- **Database:** MongoDB (Mongo Atlas)  
-- **Authentication:** Clerk  
-- **Mapping & Directions:** Leaflet (OpenStreetMap) + Google Maps Directions API  
-
 
 ## 🚀 Getting Started Locally
 
