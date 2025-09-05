@@ -7,12 +7,13 @@ import {BellPlus,MessageSquareDiff} from "lucide-react"
 export default function Appbar({ showNotifications, setShowNotifications, notifications }) {
   return (
     <header className="w-full bg-white border-b border-gray-200 px-6 py-4 shadow-sm flex items-center justify-between">  
-      <div className="flex items-center justify-center h-full">
-          <a className="ml-2 font-bold text-xl text-[#1E1E1F]" href="/home">
-            PupperGo
-          </a>
-          <img src="/logo.png" alt="Logo" className="inline-block h-6 w-6 ml-1"/>
-      </div>
+  <div className="flex items-center justify-center h-full">
+  <a href="/home" className="flex items-center font-bold text-xl text-[#1E1E1F]">
+    <span>PupperGo</span>
+    <img src="/logo.png" alt="PupperGo Logo" className="inline-block h-7 w-7 ml-1" />
+  </a>
+</div>
+
      
 
     <div className="flex items-center gap-1">

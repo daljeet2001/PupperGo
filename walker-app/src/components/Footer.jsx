@@ -7,13 +7,18 @@ export default function Footer() {
     <footer className="bg-gray-100 text-black py-12 px-6">
       <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
         {/* Brand Info */}
-        <div>
-          <h2 className="text-black text-2xl font-bold mb-3">PupperGo</h2>
-        <p className="text-sm">
-            Trusted dog walking services with real-time tracking, secure bookings, and happy tails—every time.
-        </p>
-
+   <div>
+          <a href="/home" className="flex items-center mb-3">
+       
+            <span className="font-bold text-xl text-[#1E1E1F]">PupperGo</span>
+            <img src="/logo.png" alt="PupperGo Logo" className="h-7 w-7 ml-1" />
+          </a>
+          <p className="text-sm text-gray-700 leading-relaxed">
+            Trusted dog walking services with real-time tracking, secure bookings, 
+            and happy tails—every time.
+          </p>
         </div>
+
 
         {/* Links */}
         <div>
